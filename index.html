@@ -358,8 +358,12 @@ const FILMS = [
 // elCinema work IDs, from elCinema's PEF 19 festival page (elcinema.com/en/festival/1001879/film), 23 Nov 2026
 const ELC={"all-of-a-sudden":2099473,"gabin":2102827,"queen-at-sea":2101551,"gentle-monster":2101361,"the-beloved":2099841,"goodbye-cruel-world":2102828,"what-belongs":2102830,"like-a-fortress":2102835,"minotaur":2100951,"black-money":2102836,"rose":2102123,"too-many-beasts":2102838,"messy-tribute":2102839,"everytime":2102647,"day-in-life-of-jo":2102841,"bitter-christmas":2097952,"blood-countess":2102843,"zejtune":2102844,"dreamed-adventure":2102865,"loneliest-man":2102867,"buildings-fall":2102871,"in-cod-we-trust":2102872,"fatherland":2100295,"heysel-85":2102874,"to-hold-a-mountain":2102875,"fjord":2100658,"small-talk":2102879,"tin-castle":2102881,"tristan-forever":2102883,"cochena":2102885,"paris-paris":2102925,"amazomania":2102926,"the-violinist":2102927,"born-in-the-jungle":2102928,"ashes-and-diamonds":2102889,"man-of-marble":2102888,"promised-land":2102887,"wishing-tree":2102886,"guria":2102884,"pirosmani":2102882,"supporting-role":2102878,"suram-fortress":2102876,"the-guest":2102837,"los-golfos":2102930};
 // Booking: Zawya + Nile Cinema sell on elCinema; Cimatheque uses a free Google Form.
-// Paste the Cimatheque form link here once it exists, e.g. "https://forms.gle/xxxx". Empty = "form coming soon".
-const BOOKING_FORM_CT="";
+// One free Google Form per Cimatheque screening, from Cimatheque's Linktree (linktr.ee/cmtq), 24 Nov 2026.
+const BOOKING_FORM_CT={
+ "portabella-1":"https://docs.google.com/forms/d/e/1FAIpQLSd2LryESVgffNvvtpgEbzj_K-qKOxdgjfJtKW2nRm3tYu0CFA/viewform",
+ "portabella-2":"https://forms.gle/ixu1dSy9CWA9XnD59",
+ "warsaw-bridge":"https://forms.gle/JD9vX4WsiqrRkUy4A"
+};
 
 // Cimatheque double bills
 const PROGRAMS = {
@@ -471,7 +475,7 @@ function gcal(s){
 }
 const ZAWYA_ELC=3101183;
 function bookURL(s){
-  if(s.v==="CT") return BOOKING_FORM_CT||null;
+  if(s.v==="CT") return BOOKING_FORM_CT[s.f]||null;
   const w=ELC[s.f]; if(!w) return null;
   return s.v==="NC"?`https://elcinema.com/en/booking/${w}/`:`https://elcinema.com/en/booking/${w}/${ZAWYA_ELC}/`;
 }
