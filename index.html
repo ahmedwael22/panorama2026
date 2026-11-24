@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PEF 19 — Panorama of the European Film · Your schedule</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=Alexandria:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --red:#c8353b; --red-d:#a3262c; --ink:#2a1214; --muted:#7c6466; --line:#eedcdc;
+  --bg:#fffaf8; --card:#ffffff;
+  --z1:#cfe0ef; --z2:#f6d6df; --nc:#d3ecd9; --ct:#fbefc4;
+  --z1i:#2f5d86; --z2i:#a23d5e; --nci:#2f7146; --cti:#8a6a07;
+  --radius:14px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:Archivo,system-ui,sans-serif;color:var(--ink);background:var(--bg);-webkit-font-smoothing:antialiased}
+.ar{font-family:Alexandria,Archivo,sans-serif;direction:rtl}
+a{color:inherit}
+button{font:inherit;color:inherit;cursor:pointer}
+.wrap{max-width:980px;margin:0 auto;padding:0 18px}
+
+/* header */
+header.top{background:var(--red);color:#fff;position:relative;overflow:hidden}
+header.top .wrap{padding-top:26px;padding-bottom:20px;display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap}
+.brand small{display:block;font-weight:600;letter-spacing:.14em;font-size:12px;opacity:.85}
+.brand h1{margin:6px 0 2px;font-size:clamp(28px,5vw,44px);font-weight:800;letter-spacing:-.02em;line-height:1}
+.brand .ar{font-size:clamp(20px,3.4vw,28px);font-weight:700;display:block;text-align:left;direction:rtl;unicode-bidi:plaintext;opacity:.95}
+.meta{font-size:14px;text-align:right;line-height:1.5}
+.meta b{font-size:22px;display:block;letter-spacing:-.01em}
+nav.tabs{position:sticky;top:0;z-index:20;background:var(--bg);border-bottom:1px solid var(--line)}
+nav.tabs .wrap{display:flex;gap:6px;padding-top:10px;padding-bottom:10px}
+nav.tabs a{text-decoration:none;padding:9px 16px;border-radius:999px;font-weight:600;font-size:15px;color:var(--muted)}
+nav.tabs a.on{background:var(--ink);color:#fff}
+nav.tabs .count{display:inline-block;min-width:20px;padding:0 6px;margin-left:6px;border-radius:99px;background:var(--red);color:#fff;font-size:12px;line-height:20px;text-align:center}
+
+/* day strip */
+.days{display:flex;gap:6px;overflow-x:auto;padding:16px 0 6px;scrollbar-width:none}
+.days::-webkit-scrollbar{display:none}
+.day{flex:0 0 auto;width:62px;padding:8px 0 7px;border-radius:12px;border:1px solid var(--line);background:#fff;text-align:center}
+.day .dw{font-size:11px;font-weight:600;letter-spacing:.06em;color:var(--muted);text-transform:uppercase}
+.day .dn{font-size:24px;font-weight:800;line-height:1.05;color:var(--red)}
+.day .dm{font-size:10px;color:var(--muted)}
+.day.on{background:var(--red);border-color:var(--red)}
+.day.on *{color:#fff}
+.day .dot{display:block;width:6px;height:6px;border-radius:50%;background:var(--ink);margin:4px auto 0;opacity:0}
+.day.has .dot{opacity:1}
+.day.on .dot{background:#fff}
+.day.past{opacity:.55}
+
+/* filters */
+.filters{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px 0 4px}
+.search{flex:1 1 220px;min-width:180px;padding:10px 14px;border-radius:999px;border:1px solid var(--line);background:#fff;font:inherit;font-size:15px}
+.chip{padding:8px 13px;border-radius:999px;border:1px solid var(--line);background:#fff;font-size:13px;font-weight:600;white-space:nowrap}
+.chip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.chip .sw{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+select.chip{appearance:none;padding-right:28px;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%237c6466'/%3E%3C/svg%3E") no-repeat right 11px center}
+
+h2.dayhead{font-size:15px;font-weight:600;color:var(--muted);margin:18px 0 8px;display:flex;justify-content:space-between;gap:8px}
+h2.dayhead b{color:var(--ink);font-size:18px}
+
+/* screening rows */
+.list{display:flex;flex-direction:column;gap:10px;padding-bottom:40px}
+.row{display:grid;grid-template-columns:100px 1fr auto;gap:14px;align-items:start;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px 14px 14px 0;position:relative;overflow:hidden}
+.row::before{content:"";position:absolute;left:0;top:0;bottom:0;width:6px;background:var(--vc)}
+.row.picked{border-color:var(--red);box-shadow:0 0 0 1px var(--red) inset}
+.row.gone{opacity:.5}
+.time{padding-left:20px;font-weight:800;font-size:18px;line-height:1.1}
+.time small{display:block;font-weight:500;font-size:12px;color:var(--muted);margin-top:3px}
+.ttl{font-weight:700;font-size:17px;line-height:1.25;background:none;border:0;padding:0;text-align:left}
+.ttl:hover{color:var(--red)}
+.ttl-ar{display:block;font-size:14px;color:var(--muted);margin-top:2px;text-align:left}
+.sub{font-size:13px;color:var(--muted);margin-top:4px;line-height:1.4}
+.tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px;align-items:center}
+.tag{font-size:11px;font-weight:700;padding:3px 7px;border-radius:6px;background:#f6eeee;color:var(--ink);letter-spacing:.02em}
+.tag.venue{background:var(--vc);color:var(--vi)}
+.tag.age{background:var(--ink);color:#fff}
+.tag.qa{background:var(--red);color:#fff}
+.tag.classic{background:#efe7d6;color:#6b5420}
+.rate{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:700;text-decoration:none;padding:3px 7px;border-radius:6px;border:1px solid var(--line)}
+.rate:hover{border-color:var(--ink)}
+.rate .lg{font-size:10px;font-weight:800;letter-spacing:.04em}
+.rate.imdb .lg{background:#f5c518;color:#000;padding:1px 3px;border-radius:3px}
+.rate.lb .lg{display:inline-flex;gap:2px}
+.rate.lb .lg i{width:7px;height:7px;border-radius:50%;display:inline-block}
+.rate .n{color:var(--muted);font-weight:500}
+.clash{margin-top:8px;font-size:12px;font-weight:600;color:var(--red-d);background:#fdecec;border-radius:8px;padding:5px 8px;display:inline-block}
+.add{border:1.5px solid var(--ink);background:#fff;border-radius:999px;padding:7px 14px;font-weight:700;font-size:13px;white-space:nowrap}
+.add.on{background:var(--red);border-color:var(--red);color:#fff}
+.add{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;touch-action:manipulation}
+.addgrp{display:flex;flex-direction:column;gap:6px;align-items:stretch}
+.add.mark{background:#fff;border:1.5px dashed var(--red);color:var(--red-d)}
+.add.mark:hover{background:var(--red);border-style:solid;color:#fff}
+.add.rm{border-color:var(--line);color:var(--muted);font-weight:600}
+.add.rm:hover{border-color:var(--ink);color:var(--ink)}
+.row.unb{border-style:dashed;box-shadow:none}
+.chip:disabled{opacity:.45;cursor:default}
+.book{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;text-decoration:none;padding:3px 8px;border-radius:6px;background:var(--ink);color:#fff;white-space:nowrap}
+.book small{font-weight:500;opacity:.75;font-size:11px}
+.book:hover{background:var(--red)}
+.book.soon{cursor:default;opacity:.6}.book.soon:hover{background:var(--ink)}
+.sact{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.ask{position:fixed;left:50%;bottom:16px;transform:translate(-50%,140%);width:min(460px,calc(100% - 24px));background:var(--ink);color:#fff;border-radius:18px;padding:14px 14px 12px 16px;z-index:65;box-shadow:0 12px 34px rgba(42,18,20,.3);transition:transform .25s,visibility 0s .25s;visibility:hidden}
+.ask.on{transform:translate(-50%,0);visibility:visible;transition:transform .25s}
+.ask p{margin:0 28px 10px 0;font-size:14px;line-height:1.4}.ask p small{display:block;opacity:.7;font-size:12px;margin-top:2px}
+.ask .acts{display:flex;gap:8px;flex-wrap:wrap}
+.ask .acts button{border:0;border-radius:999px;padding:9px 14px;font-weight:700;font-size:13px;min-height:40px}
+.ask .yes{background:var(--red);color:#fff}.ask .no{background:#fff;color:var(--ink)}
+.ask .x2{position:absolute;top:8px;right:8px;width:32px;height:32px;border-radius:50%;border:0;background:rgba(255,255,255,.12);color:#fff;font-size:18px;line-height:1}
+body.asking .toast{bottom:150px}
+.pmenu a{display:flex;flex-direction:column;padding:10px 12px;border-radius:10px;text-decoration:none;border-top:1px solid var(--line);margin-top:4px}
+.pmenu a:hover,.pmenu a:focus-visible{background:#f6eeee;outline:none}
+.pmenu{position:fixed;z-index:70;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 10px 30px rgba(42,18,20,.18);padding:6px;width:230px;display:none}
+.pmenu.on{display:block}
+.pmenu button{display:flex;flex-direction:column;align-items:flex-start;width:100%;border:0;background:none;text-align:left;padding:10px 12px;border-radius:10px;min-height:44px}
+.pmenu button:hover,.pmenu button:focus-visible{background:#f6eeee;outline:none}
+.pmenu b{font-size:14px}.pmenu small{font-size:12px;color:var(--muted)}
+.pmenu button.cur b::after{content:" ✓";color:var(--red)}
+.empty{text-align:center;color:var(--muted);padding:50px 10px}
+.prog{margin-top:6px;font-size:13px}
+.prog button{background:none;border:0;padding:0;font-weight:600;text-decoration:underline;text-underline-offset:2px}
+
+/* films grid */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px;padding:12px 0 40px}
+.fc{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:16px;display:flex;flex-direction:column;gap:6px;text-align:left}
+.fc:hover{border-color:var(--ink)}
+.fc h3{margin:0;font-size:17px;line-height:1.25}
+.fc .syn{font-size:13px;line-height:1.45;color:#4b3335;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.fc .next{font-size:12px;color:var(--muted);margin-top:auto;padding-top:6px}
+
+/* my list */
+.mine-bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;padding:16px 0 4px}
+.mine-bar .stat{font-size:14px;color:var(--muted)}
+.mine-bar .stat b{color:var(--ink)}
+.btn{border:0;background:var(--ink);color:#fff;border-radius:999px;padding:9px 16px;font-weight:700;font-size:13px}
+.btn.ghost{background:#fff;color:var(--ink);border:1.5px solid var(--ink)}
+.gap{display:flex;align-items:center;gap:10px;margin:-2px 0;padding:0 4px 0 22px;font-size:12px;font-weight:600;color:var(--muted)}
+.gap::before{content:"";width:2px;height:22px;background:var(--line);border-radius:2px;flex:none}
+.gap.tight{color:var(--cti)}.gap.tight::before{background:var(--ct)}
+.gap.over{color:var(--red-d)}.gap.over::before{background:var(--red)}
+.bk{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:12px 14px;margin:8px 0}
+.bk p{margin:0 0 8px;font-size:14px}
+.bk textarea{width:100%;font:13px/1.4 ui-monospace,Menlo,monospace;border:1px solid var(--line);border-radius:10px;padding:8px;resize:vertical;background:var(--bg);color:var(--ink)}
+.bkacts{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+.bknote{font-size:13px;color:var(--muted);margin:6px 0 0;line-height:1.45}
+.diag{font-size:11px;opacity:.7;margin-top:8px;word-break:break-all}
+.gcal{font-size:12px;font-weight:600;color:var(--muted);text-decoration:underline;text-underline-offset:2px;margin-left:2px}
+
+/* modal */
+.scrim{position:fixed;inset:0;background:rgba(42,18,20,.45);z-index:50;display:none;align-items:flex-end;justify-content:center}
+.scrim.on{display:flex}
+.sheet{background:var(--bg);width:min(720px,100%);max-height:88vh;overflow:auto;border-radius:20px 20px 0 0;padding:22px 20px 28px;position:relative}
+@media(min-width:760px){.scrim{align-items:center}.sheet{border-radius:20px}}
+.sheet .x{position:absolute;top:12px;right:12px;width:36px;height:36px;border-radius:50%;border:0;background:#f1e4e4;font-size:20px;line-height:1}
+.sheet h2{margin:0 40px 2px 0;font-size:26px;line-height:1.15}
+.sheet .ar{font-size:18px;color:var(--muted);text-align:left;display:block}
+.sheet p{line-height:1.55;font-size:15px}
+.sheet h4{margin:18px 0 8px;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.srow{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:10px 12px;border-radius:12px;background:#fff;border:1px solid var(--line);margin-bottom:6px;border-left:6px solid var(--vc)}
+.srow .w{font-weight:700;font-size:14px}
+.srow .v{font-size:12px;color:var(--muted)}
+
+footer{border-top:1px solid var(--line);color:var(--muted);font-size:12px;line-height:1.6;padding:22px 0 40px}
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(80px);background:var(--ink);color:#fff;padding:10px 16px;border-radius:999px;font-size:14px;font-weight:600;transition:transform .25s;z-index:60}
+.toast.on{transform:translateX(-50%) translateY(0)}
+.legend{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--muted);padding:2px 0 8px}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+@media(max-width:560px){
+  .row{grid-template-columns:76px 1fr;padding-right:12px}
+  .time{padding-left:16px;font-size:15px}
+  .row .add,.row .addgrp{grid-column:2;justify-self:start}
+  .row .addgrp{flex-direction:row;flex-wrap:wrap}
+  .meta{text-align:left}
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <div class="brand">
+      <small>PEF 19 · PERSONAL SCHEDULE</small>
+      <h1>Panorama of the European Film</h1>
+      <span class="ar">بانوراما الفيلم الأوروبي</span>
+    </div>
+    <div class="meta"><b>26 Nov – 8 Dec 2026</b>Zawya · Nile Cinema · Cimatheque</div>
+  </div>
+</header>
+<nav class="tabs"><div class="wrap">
+  <a href="#schedule" data-v="schedule">Schedule</a>
+  <a href="#films" data-v="films">Films</a>
+  <a href="#mine" data-v="mine">My list<span class="count" id="mcount">0</span></a>
+</div></nav>
+
+<main class="wrap" id="view"></main>
+
+<footer><div class="wrap">
+  Unofficial guide made by a film fan, not affiliated with Zawya or the Panorama. Screening times are taken from the official PEF 19 schedule. Synopses come from Letterboxd; ratings from Letterboxd and IMDb as of 23 Nov 2026. Check Zawya's channels for booking details and last-minute changes.<br>
+  Badges: <b>AR</b> Arabic subtitles · <b>EN</b> English subtitles · <b>12+ / 16+ / 18+</b> age rating. Long-press (or right-click) “+ Add” to add a film you haven't booked yet. Tickets for Zawya and Nile Cinema are sold on elCinema; Cimatheque screenings are free and booked through a Google Form. Your list is saved in this browser. To move it to another phone or browser, use “Copy list + backup” in My list, then Restore on the other device.
+</div></footer>
+
+<div class="scrim" id="scrim"><div class="sheet" id="sheet"></div></div>
+<div class="toast" id="toast"></div>
+<div class="pmenu" id="pmenu" role="menu"></div>
+<div class="ask" id="ask" role="dialog" aria-live="polite"></div>
+
+<script>
+// Transcribed from the official PEF 19 schedule slides (Zawya, Instagram).
+// Row: [date, time(24h), venue, filmId, subs, age, note]
+// venues: Z1 = Zawya 01, Z2 = Zawya 02, NC = Nile Cinema, CT = Cimatheque
+// subs: "AE" = Arabic + English, "E" = English, "A" = Arabic
+const RAW = `
+2026-11-26|16:00|Z1|supporting-role|E||
+2026-11-26|19:00|Z1|fatherland|AE|12+|
+2026-11-26|21:30|Z1|heysel-85|AE|16+|
+2026-11-26|19:00|Z2|paris-paris|E||
+2026-11-26|21:30|Z2|messy-tribute|E|18+|
+2026-11-27|13:30|Z1|the-violinist|AE|12+|
+2026-11-27|16:30|Z1|gabin|E||
+2026-11-27|19:00|Z1|fjord|AE|16+|
+2026-11-27|22:00|Z1|rose|AE||
+2026-11-27|13:30|Z2|wishing-tree|E|12+|
+2026-11-27|16:30|Z2|tristan-forever|E||
+2026-11-27|19:00|Z2|tin-castle|E||
+2026-11-27|21:30|Z2|blood-countess|E|12+|
+2026-11-27|19:00|NC|minotaur|E|18+|
+2026-11-28|13:30|Z1|suram-fortress|E||
+2026-11-28|16:30|Z1|day-in-life-of-jo|E|16+|
+2026-11-28|19:00|Z1|bitter-christmas|E|18+|
+2026-11-28|21:30|Z1|all-of-a-sudden|AE||
+2026-11-28|13:30|Z2|to-hold-a-mountain|E||
+2026-11-28|16:30|Z2|small-talk|E||
+2026-11-28|19:00|Z2|amazomania|E|16+|
+2026-11-28|21:30|Z2|zejtune|E||
+2026-11-28|19:00|NC|queen-at-sea|E|18+|
+2026-11-29|16:30|Z1|black-money|E|18+|
+2026-11-29|19:00|Z1|minotaur|AE|18+|
+2026-11-29|22:00|Z1|too-many-beasts|E|18+|
+2026-11-29|21:30|Z2|in-cod-we-trust|E||
+2026-11-29|19:00|NC|the-guest|E|12+|
+2026-11-30|16:30|Z1|ashes-and-diamonds|E||
+2026-11-30|19:00|Z1|the-beloved|AE|18+|
+2026-11-30|22:00|Z1|buildings-fall|E|16+|
+2026-11-30|19:00|Z2|gabin|E||
+2026-11-30|21:30|Z2|tristan-forever|E||
+2026-11-30|19:00|NC|fatherland|AE|12+|
+2026-12-01|16:30|Z1|like-a-fortress|E|12+|
+2026-12-01|19:00|Z1|dreamed-adventure|AE|16+|
+2026-12-01|22:00|Z1|loneliest-man|AE||
+2026-12-01|19:00|Z2|messy-tribute|E|18+|
+2026-12-01|21:30|Z2|the-violinist|E|12+|
+2026-12-01|19:00|NC|heysel-85|AE|16+|
+2026-12-02|16:30|Z1|what-belongs|E||
+2026-12-02|19:00|Z1|gentle-monster|AE|18+|
+2026-12-02|21:30|Z1|minotaur|AE|18+|
+2026-12-02|19:00|Z2|small-talk|E||
+2026-12-02|21:30|Z2|zejtune|E||
+2026-12-02|19:00|NC|day-in-life-of-jo|E|16+|
+2026-12-03|16:30|Z1|man-of-marble|E||
+2026-12-03|19:00|Z1|everytime|E|12+|
+2026-12-03|21:30|Z1|goodbye-cruel-world|E||
+2026-12-03|19:00|Z2|what-belongs|E||
+2026-12-03|21:30|Z2|black-money|E|18+|
+2026-12-03|19:00|NC|the-beloved|AE|18+|
+2026-12-04|13:30|Z1|born-in-the-jungle|A||
+2026-12-04|16:30|Z1|tin-castle|E||
+2026-12-04|19:00|Z1|bitter-christmas|E|18+|
+2026-12-04|21:30|Z1|dreamed-adventure|AE|16+|
+2026-12-04|13:30|Z2|loneliest-man|E||
+2026-12-04|16:30|Z2|paris-paris|E||
+2026-12-04|19:00|Z2|too-many-beasts|E|18+|
+2026-12-04|21:30|Z2|buildings-fall|E|16+|
+2026-12-04|19:00|NC|gentle-monster|AE|18+|
+2026-12-05|13:30|Z1|cochena|E|12+|Q&A with director Diogo Allen
+2026-12-05|16:30|Z1|amazomania|E|16+|
+2026-12-05|19:00|Z1|fjord|AE|16+|
+2026-12-05|21:30|Z1|queen-at-sea|A|18+|
+2026-12-05|13:30|Z2|goodbye-cruel-world|E||
+2026-12-05|16:30|Z2|los-golfos|E|12+|Q&A with researcher Adrian Onco
+2026-12-05|19:00|Z2|supporting-role|E||
+2026-12-05|22:00|Z2|like-a-fortress|E|12+|
+2026-12-06|16:30|Z1|pirosmani|E||
+2026-12-06|19:00|Z1|guria|E|12+|
+2026-12-06|21:30|Z1|everytime|E|12+|
+2026-12-06|19:00|Z2|the-guest|E|12+|
+2026-12-06|21:30|Z2|blood-countess|E|12+|
+2026-12-06|16:30|CT|portabella-1|A||
+2026-12-07|16:30|Z1|to-hold-a-mountain|E||
+2026-12-07|19:00|Z1|rose|AE|18+|
+2026-12-07|21:30|Z1|the-beloved|AE|18+|
+2026-12-07|19:00|Z2|born-in-the-jungle|A||
+2026-12-07|21:30|Z2|in-cod-we-trust|E||
+2026-12-07|16:30|CT|portabella-2|A||
+2026-12-08|16:00|Z1|promised-land|E|18+|
+2026-12-08|19:00|Z1|all-of-a-sudden|AE||
+2026-12-08|22:30|Z1|fatherland|AE|12+|
+2026-12-08|19:00|Z2|guria|E|12+|
+2026-12-08|21:30|Z2|cochena|E|12+|
+2026-12-08|16:30|CT|warsaw-bridge|A||
+`;
+
+// Film data. Runtimes (min) follow the official PEF slides (The Beloved corrected to 136).
+// Synopses, directors, countries, years, links and ratings from Letterboxd + IMDb, collected 23 Nov 2026.
+// Fields: id, en, ar, year, dir, country, genre, min, syn, lb (Letterboxd slug), lbR, lbN, imdb, imR, imN
+const FILMS = [
+ ["supporting-role","Supporting Role","دور ثانوي",2026,"Ana Urushadze","Georgia, Estonia, Switzerland","Drama",139,"A retired Georgian film star, used to playing heroic leads, embarks on a cathartic journey after a casting session with a young female director, who has offered him a supporting role of a bizarre and unsympathetic character in her debut film.","supporting-role-2026",3.34,288,"tt31326337",6.3,42],
+ ["fatherland","Fatherland","أرض الآباء",2026,"Paweł Pawlikowski","Poland, Germany, France, Italy, UK","Drama, History",82,"In 1949, German writer Thomas Mann and his daughter Erika embark on a road trip across a Germany in ruins, from US-dominated Frankfurt to Soviet-controlled Weimar.","fatherland-2026",3.66,60438,"tt37304295",7.4,5274],
+ ["heysel-85","Heysel 85","هيسل ٨٥",2026,"Teodora Ana Mihai","Belgium, Romania, Netherlands","Drama, History",92,"When 39 people are killed prior to the European Cup at the Brussels Heysel stadium in 1985, the mayor's daughter and an Italian journalist are torn between their professional assignments, family, and human nature.","heysel-85",3.56,1708,"tt30135000",6.8,245],
+ ["paris-paris","Paris Paris","باريس باريس",2026,"Isabelle Tollenaere","Belgium","Documentary-drama",78,"Three men—from China, the Democratic Republic of Congo, and Palestine—live together in a squatted apartment in a seemingly abandoned building in Paris. The group is bound together by their shared experience of life in exile and the fleeting nature of their possessions, relationships, and sense of home, but the temporary safe space is threatened by outside forces and events.","paris-paris-2026",null,0,"tt37264166",6.3,9],
+ ["messy-tribute","A Messy Tribute to Motherly Love","تحية مُخفقة للحب الأمومي",2026,"Dan Geesin","Netherlands, Germany, Belgium","Surreal comedy-drama",85,"When people literally explode from emotional overload, grief is just the beginning. A wildly surrealist charade in which a bereaved man, his friend and mother spiral through village life.","a-messy-tribute-to-motherly-love",null,0,"tt39298331",5.5,29],
+ ["the-violinist","The Violinist","عازفة الكمان",2026,"Ervin Han, Raúl García","Singapore, Spain, Italy","Animation, Drama",114,"It is Singapore in the late 1930s. Kai and Fei are childhood friends and aspiring violinists. When Japan invades Malaya in 1941, Kai chooses to forgo his music career to join the anti-Japanese forces. After the war Kai goes missing. Determined to find him, Fei performs all over Southeast Asia, all the while seeking any news of Kai. Yet, as time fades, Fei has to decide if she must find her own music to define the remaining years of her life.","the-violinist-2026",3.47,2288,"tt30388264",7.3,177],
+ ["gabin","Gabin","جابان",2026,"Maxence Voiseux","France, Germany, Switzerland","Documentary",105,"Gabin, the youngest child of the Jourdel family, is set to take over his father's butcher shop. Torn between family loyalty and a desire to break free, he has other dreams.","gabin",3.6,2213,"tt41829787",6.9,83],
+ ["fjord","Fjord","فيورد",2026,"Cristian Mungiu","Romania, Norway, France","Drama",146,"After the deaths of Mihai's parents, Mihai and Lisbeth Gheorghiu leave everything behind in Romania and move with their children to a remote village in Norway, hoping to rebuild their lives near Lisbeth's family. There, they grow close to their neighbors, the Halbergs, whose warmth offers the promise of a fresh start. But the fragile peace begins to unravel when the Gheorghius' young daughter, Elia, arrives at school covered in bruises.","fjord-2026",3.73,136974,"tt35410859",7.6,8261],
+ ["rose","Rose","روز",2026,"Markus Schleinzer","Austria, Germany","Drama, History",93,"In the early 17th century, a soldier arrives at an isolated Protestant village in Germany claiming to be the heir to an abandoned farmstead. Even though he proves to be a good man, the villagers' suspicions about his identity grow and they force a reckoning.","rose-2026",3.87,37341,"tt25399154",7.5,3807],
+ ["wishing-tree","The Wishing Tree","شجرة الأمنيات",1976,"Tengiz Abuladze","Georgia (USSR)","Drama",107,"Marita arrives at a small village in Georgia to live with her aunt. She meets a poor young lad, Gedia, and falls in love with him. But her relatives are determined to marry the girl off to a local rich man…","the-wishing-tree-1976",4.05,5481,"tt0075963",8,2231],
+ ["tristan-forever","Tristan Forever","تريستان للأبد",2026,"Tobias Nölle, Loran Bonnardot","Switzerland","Documentary",90,"For 30 years, a doctor from Paris has maintained a friendship with a fisherman on Tristan da Cunha, the most isolated inhabited island in the world. Now he travels back one more time, with the plan to stay there for good.","tristan-forever",3.51,594,"tt39370293",7.3,89],
+ ["tin-castle","Tin Castle","قلعة من الصفيح",2026,"Alexander Murphy","Ireland, France","Documentary",106,"Along a long-forgotten road, the O’Reillys live in a rundown trailer stranded in the middle of the fields. Pa’, Lisa, and their ten children weather the seasons in their tin castle, heirs to a way of life on borrowed time. Under threat of eviction, their tenuous balance falters, yet – steadfast in their tradition – they resist. The children laugh, the dogs bark, the trailer holds on – but for how long?","tin-castle",3.68,2549,"tt42053546",7.1,98],
+ ["blood-countess","The Blood Countess","كونتيسة الدم",2026,"Ulrike Ottinger","Austria, Luxembourg, Germany","Horror comedy, Fantasy",119,"The Blood Countess and her maid embark on a quest for the red elixir of life and a book that threatens the vampire realm. Hot on their heels are a police inspector, two vampirologists, a vegetarian nephew and his therapist.","the-blood-countess",2.92,4612,"tt28151657",5.4,355],
+ ["minotaur","Minotaur","مينوتور",2026,"Andrey Zvyagintsev","France, Latvia, Germany","Crime, Thriller",135,"When Gleb, a successful company director, finds himself under siege from mounting corporate pressures, an increasingly unstable world, and the discovery of his wife's affair, the collapse of his carefully ordered life accelerates toward violence.","minotaur-2026",3.71,31098,"tt37118301",7.6,2750],
+ ["suram-fortress","The Legend of Suram Fortress","أسطورة قلعة سورامي",1985,"Sergei Parajanov, David Abashidze","Georgia (USSR)","History, Drama",88,"A film version of a well-known Georgian folk-tale. A young boy has to be immured into the walls of a fortress in order to stop it from crumbling to pieces.","the-legend-of-the-suram-fortress",3.9,5629,"tt0087606",7.3,2485],
+ ["day-in-life-of-jo","A Day in the Life of Jo: Chapter Phaedra","يوم من حياة جو: فصل فيدرا",2026,"Jacqueline Lentzou","Greece, France, Germany","Drama",88,"Jo, 15, melancholic and wild, feels shy about her music taste. Phaedra's ethereal song moves her deeply. Between breaths, she writes a poem, cuts an apology rose for her moody mom, but can't recall last night's dream. A day of shifts.","a-day-in-the-life-of-jo-chapter-phaedra",3.45,1416,"tt43704171",6.7,107],
+ ["bitter-christmas","Bitter Christmas","كريسماس مُر",2026,"Pedro Almodóvar","Spain","Drama, Comedy",111,"In 2025 Spain, a celebrated film director struggles to write the screenplay for an autofictional film set in 2004 Spain about an unsuccessful movie director turned director of commercials who suffers a panic attack that forces her to take a break by visiting the Canary Islands, where she begins work on a new film.","bitter-christmas",3.15,68937,"tt28088049",6.3,6119],
+ ["all-of-a-sudden","All of a Sudden","فجأة",2026,"Ryusuke Hamaguchi","Japan, France, Belgium","Drama",196,"Marie-Lou Fontaine, director of a nursing home in the Paris suburbs, defies convention by adopting the 'Humanitude' method despite her team’s resistance. Her encounter with Mari Morisaki, a terminally ill Japanese playwright, transforms her life. Together, they turn the facility into a symbol of resistance and humanity against the system’s limits.","all-of-a-sudden-2026",4.22,36610,"tt36834996",7.9,2252],
+ ["to-hold-a-mountain","To Hold a Mountain","أن تتشبث بجبل",2026,"Biljana Tutorov, Petar Glomazić","Serbia, Montenegro, France","Documentary",105,"In the remote highlands of Montenegro, a shepherd mother and daughter proudly defend their ancestral mountain from the threat of becoming a NATO military training ground, stirring memories of the violence that shattered their family.","to-hold-a-mountain",3.83,1588,"tt39150043",7.7,163],
+ ["small-talk","Small Talk","اللغو",2026,"Mateo Ybarra","Switzerland","Documentary",90,"Hoping to launch a career in the luxury world, Charlie enrolls at the last finishing school in Switzerland. Over the course of a summer, women from around the world learn the codes of elegance, etiquette and conversation meant to prepare them for elite social circles. As they refine their gestures and manners, a world of aspiration, discipline and self-transformation gradually unfolds.","small-talk-2026-1",null,0,"tt41855441",6.4,5],
+ ["amazomania","Amazomania","أمازومانيا",2026,"Nathan Grossman","Sweden, Denmark, France","Documentary",95,"In 1996, a Brazilian official and a Swedish journalist ventured into the Amazon to document the isolated Korubo tribe caught in escalating land conflicts. Initially hailed as a heroic breakthrough, the footage now demands to be reexamined. Uncovering the hidden costs of “discovery,” the film confronts the colonial legacy and exposes the long-term repercussions for the Korubo.","amazomania",3.67,618,"tt39920935",7.5,46],
+ ["zejtune","Zejtune","زيتون",2026,"Alex Camilleri","Malta, Germany, USA","Drama",108,"Mar is ready to leave the tiny island of Malta behind, and her estranged mother's death gives her the perfect way out: an inheritance of valuable farmland that she can sell. But when greedy relatives contest her claim, Mar's plans hit a snag. As she fights to secure her future, Mar meets Nenu, a spirited troubadour whose vibrant folk songs, rooted in Malta's ancient għana tradition, awaken emotions she's long buried.","zejtune",3.54,734,"tt35746577",7.3,179],
+ ["queen-at-sea","Queen at Sea","ملكة ضائعة",2026,"Lance Hammer","UK","Drama",121,"As advanced dementia erodes an older woman's ability to communicate her inner life, her husband and daughter struggle to act in her best interests, navigating love and the fragile boundaries between care, protection and autonomy.","queen-at-sea",3.83,7095,"tt27541205",7.5,1351],
+ ["black-money","Black Money for White Nights","أموال سوداء لليالي البيضاء",2026,"Kristina Grozeva, Petar Valchanov","Bulgaria, Greece","Comedy, Drama",94,"After years of saving from the petty bribes they collect, sixty-year-old Marina and Gosha from Bulgaria dream of travelling to Saint Petersburg for the White Nights. When Russia invades Ukraine and the travel agency vanishes with all their savings, their dream collapses along with their illusion of control over their morals and their relationship.","black-money-for-white-nights",3.45,473,"tt38799410",7.2,80],
+ ["too-many-beasts","Too Many Beasts","كثرة الوحوش",2026,"Sarah Arnold","France","Comedy",95,"In the French countryside, wild boars ravaging crops spark an open war between farmers and members of a gentlemen’s hunting club, who feed the game between hunts. Brun, a bankrupt farmer, struggles to keep his farm afloat. When the club’s president pushes him to his limits, Brun shoots him and disappears. A year later, Fulda, a volatile police officer just transferred to the region, leads the investigation. Still struggling after a recent breakup, and as wild boars proliferate across the region, he is pushed to the brink of sanity.","too-many-beasts",3.35,4306,"tt38841455",6.6,261],
+ ["in-cod-we-trust","In Cod We Trust","نثق في البكالا",2026,"Guro Saniola Bjerk","Norway, Finland","Documentary",84,"Welcome to Båtsfjord, one of the northernmost fishing villages of the world, where cod is more important than God. In Cod We Trust is a mosaic puzzle, where people are knit together by fish, the town and nature. With an observational camera and closely heard dialogue, you will feel like you are there, candidly watching them, as they reveal how history and circumstances shape us and our perception of home. Båtsfjord might be the most remote and coldest place on earth, but here you will find the warmest people with the most outstanding humour.","in-cod-we-trust",null,0,"",null,0],
+ ["the-guest","The Guest","الضيفة",2026,"Mads Mengel","Denmark","Drama",99,"At a luxury seaside hotel, Karl and Emilie are preparing for their son’s naming party when Karl’s estranged mother, Vibeke, suddenly turns up uninvited. Karl wants her gone, but his sister, Rikke, insists there won’t be any problems. Over one tense weekend, old patterns and buried wounds surface in front of in-laws and guests until the celebration fractures and a collision occurs.","the-guest-2026",3.59,704,"tt39378214",7.3,87],
+ ["ashes-and-diamonds","Ashes and Diamonds","الرماد والألماس",1958,"Andrzej Wajda","Poland","War, Drama",103,"A young academy soldier, Maciek Chelmicki, is ordered to shoot the secretary of the KW PPR. A coincidence causes him to kill someone else. Meeting face to face with his victim, he gets a shock. He faces the necessity of repeating the assassination. He meets Krystyna, a girl working as a barmaid in the restaurant of the \"Monopol\" hotel. His affection for her makes him even more aware of the senselessness of killing at the end of the war. Loyalty to the oath he took, and thus the obligation to obey the order, tips the scales.","ashes-and-diamonds",4.04,38052,"tt0052080",7.7,15407],
+ ["the-beloved","The Beloved","المحبوب",2026,"Rodrigo Sorogoyen","Spain, France","Drama",136,"The acclaimed film director Esteban Martínez is a legend both for his films and for his past marked by violence and excess. For his new project, he offers his daughter Emilia a role under the pretext of helping her with her stalled acting career. Living together on set will foster a closeness they haven’t shared for years, but it will also reopen old wounds that never healed.","the-beloved-2026",3.84,57785,"tt33451014",7.2,4574],
+ ["buildings-fall","I See Buildings Fall Like Lightning","أرى مبانٍ تسقط كالبرق",2026,"Clio Barnard","UK, USA","Drama",109,"Childhood friends Patrick, Shiv, Rian, Oli, and Conor played together, skipped school together, and dreamt of the lives they would have one day. Now they’re thirty, and the future they imagined is slipping quietly out of reach.","i-see-buildings-fall-like-lightning",3.66,4289,"tt38991615",7.2,277],
+ ["like-a-fortress","Like a Fortress","كالحصن",2026,"Lou Colpé","Belgium","Documentary",83,"After the sudden disappearance of her partner one summer in Corsica, Lou Colpé returns to Charleroi. Their home, a place where the absence is tangible, is transformed into a sanctuary. Everything there becomes a treasure and a ritual. She films what is reinvented every day: her survival.","like-a-fortress",null,0,"tt41367721",8,5],
+ ["dreamed-adventure","The Dreamed Adventure","مغامرة الأحلام",2026,"Valeska Grisebach","Germany, Bulgaria, France","Crime, Drama",164,"Journeying home to the Bulgarian hinterlands on the border of Turkey and Greece, Saïd seeks out a fuel-smuggling deal with a small-time crook, attracting the attention of Iliya, the local kingpin. Sensing danger, Saïd enlists the help of one-time romantic interest Veska, an archaeologist who years earlier had fallen in with the swindlers and operators of the post-Communist era. But when Saïd goes missing, Veska takes over the smuggling operation, deftly moving among the thunderous, posturing men and coming-face-to-face with the underworld that shaped her past.","the-dreamed-adventure",3.31,3764,"tt21188986",6.5,397],
+ ["loneliest-man","The Loneliest Man in Town","الرجل الأكثر وحدة بالمدينة",2026,"Tizza Covi, Rainer Frimmel","Austria","Music, Drama",86,"Blues musician Al Cook lives in an apartment filled with memories. Outside, the world carries on without him. But when his home is slated for demolition, out of the ruins of his existence, a long-forgotten dream suddenly resurfaces.","the-loneliest-man-in-town-2026",3.67,2317,"tt39382808",7.4,230],
+ ["what-belongs","What Belongs to Others","أشياء الآخرين",2026,"Grzegorz Dębowski","Poland","Drama",105,"Kasia earns her living by breaking into other people's homes. One day on the job she finds a dead body of a man and decides to move into his apartment and find out who he was.","what-belongs-to-others",3.34,448,"tt43704165",7,52],
+ ["gentle-monster","Gentle Monster","وحش رقيق",2026,"Marie Kreutzer","Austria, Germany, France","Drama, Thriller",114,"After relocating with her family to the countryside, a renowned pianist uncovers a life-shattering truth that forces her to confront the complexities of love, trust, and deception.","gentle-monster",3.3,14349,"tt37020296",6.6,1578],
+ ["man-of-marble","Man of Marble","رجل من الرخام",1977,"Andrzej Wajda","Poland","Drama",160,"A young Polish filmmaker sets out to find out what happened to Mateusz Birkut, a bricklayer who became a propaganda hero in the 1950s but later fell out of favor and disappeared.","man-of-marble",3.86,7062,"tt0075902",7.6,5460],
+ ["everytime","Everytime","كل مرة",2026,"Sandra Wollner","Austria, Germany","Drama",121,"A tragedy brings a mother, daughter, and teenage boy together. Struggling with blame and forgiveness, the unlikely trio take a trip to Tenerife for a family holiday that never happened. Under the glow of the sun, past and present quietly start to overlap.","everytime",3.83,14972,"tt41592057",7.2,1041],
+ ["goodbye-cruel-world","Goodbye Cruel World","وداعًا أيها العالم القاسي",2026,"Félix de Givry","Belgium, France","Drama, Romance",93,"Fourteen-year-old Otto writes a suicide letter to his family and classmates, but his attempt fails. Too ashamed to go back home, he hides. As night falls, he roams the city streets like a ghost—until a girl from his high school, Léna, recognizes him.","goodbye-cruel-world-2026",3.6,7668,"tt34427439",6.8,165],
+ ["born-in-the-jungle","Born in the Jungle","مواليد الأدغال",2026,"Edmunds Jansons","Latvia, Poland, Czechia","Animation, Family",72,"During late 1950s in Venezuela, nine-year-old Elizabeth’s summer break takes a wild turn when her little brother Leo vanishes into the jungle. She must swap her books for bravery not only to find her brother but also to rescue a mystical furry animal from captivity and bring him back up to the legendary Tepui mountain.","born-in-the-jungle",null,0,"tt29344898",7,46],
+ ["cochena","Cochena","كوشينا",2026,"Diogo Allen","Portugal","Documentary",85,"A chant from another time reveals the ancient everyday gestures of a Gypsy family, anchored by the errant couple Maria and Arménio. In the flow of days and life cycles, we find resistance and celebration.","cochena",null,0,"tt33810752",null,0],
+ ["los-golfos","Los Golfos","الصعاليك",1960,"Carlos Saura","Spain","Drama",88,"A group of friends who are struggling to survive in the slums of Madrid commit petty crime in order to finance the debut as a bullfighter of one of them.","the-delinquents-1960",3.43,2293,"tt0056034",6.6,543],
+ ["pirosmani","Pirosmani","بيروسماني",1969,"Giorgi Shengelaia","Georgia (USSR)","History, Drama",86,"A biography of the Georgian primitive artist Nikoloz Pirosmanishvili (1862–1918), better known as Pirosmani, who died of starvation and sold his paintings to bars and restaurants for food and drink. The film experiments with color control techniques based on the painter’s style.","pirosmani",4.02,4307,"tt0064815",7.7,1587],
+ ["guria","Guria","جوريا",2026,"Levan Koguashvili","Georgia, Norway, Switzerland","Drama, Comedy",118,"In a post-Soviet Georgian village where daily life swings between chaos and poverty, farmer Zuriko refuses to play along. Between impossible family demands, cutthroat buyers, and local madness, he tries his best to get a fair price for his hazelnuts and win the heart of the village music teacher.","guria",3.56,377,"tt29550106",8.1,53],
+ ["dont-count","Don't Count on Your Fingers","لا تعول على أصابعك",1967,"Pere Portabella","Spain","Experimental short",28,"Pere Portabella’s first work as a director starts with the following phrase: “defeated…but not conquered”. This may or should be taken as an allusion to the technical K.O. taken by Portabella from Franco’s regime during the sixties as regards his work as a producer. Through the extremely raging playthings of the words of Catalan poet Joan Brossa, Portabella attempts to dismantle the forms of advertising discourse of that time.","dont-count-on-your-fingers",3.43,392,"tt0148533",6.7,107],
+ ["vampir","Vampir – Cuadecuc","مصاص الدماء - كوداكوك",1971,"Pere Portabella","Spain","Experimental documentary",66,"An atmospheric essay, which is an alternative version of Count Dracula, a film directed by Jess Franco in 1970; a ghostly narration between fiction and reality.","vampir-cuadecuc",3.57,3646,"tt0066517",6.5,1019],
+ ["nocturno-29","Nocturno 29","نوكتورنو ٢٩",1968,"Pere Portabella","Spain","Experimental",78,"Portabella’s first feature, co-scripted by poet Joan Brossa, became one of the most influential works of the Barcelona avant-garde, although like all his early films, it circulated only in an underground fashion. Eschewing dialogue, the director constructs a non-narrative story in fragments that reveal the daily lives of an adulterous couple interspersed with a cryptic stream of unrelated imagery. The title of this homage to directors including Eisenstein, Antonioni, Bergman, and Buñuel refers to the 29 “black years” of the Franco dictatorship.","nocturne-29",3.43,949,"tt0063363",6.2,351],
+ ["la-tempesta","La Tempesta","العاصفة",null,"","","Short",6,"","",null,0,"",null,0],
+ ["promised-land","The Promised Land","أرض الميعاد",1975,"Andrzej Wajda","Poland","History, Drama",179,"At the turn of the century, Lodz, Poland, was a quick-paced manufacturing center for textiles, replete with cutthroat industrialists and unsafe working conditions. Three young friends, a Pole, a Jew, and a German, pool their money together to build a factory.","the-promised-land-1975",4.02,6668,"tt0072446",7.8,4748],
+ ["warsaw-bridge","Warsaw Bridge","جسر وارسو",1990,"Pere Portabella","Spain","Drama",84,"A female professor, a writer, and an orchestra conductor--three characters, two couples--attend a grand literary cocktail party. The writer has just won the prize for his book \"Warsaw Bridge.\" The winner answers the journalist's questions one after another, but he is unable to come up with a synthesis of the plot of his book. They will simply have to read it.","warsaw-bridge",3.58,1113,"tt0098139",6.5,380]
+];
+
+// elCinema work IDs, from elCinema's PEF 19 festival page (elcinema.com/en/festival/1001879/film), 23 Nov 2026
+const ELC={"all-of-a-sudden":2099473,"gabin":2102827,"queen-at-sea":2101551,"gentle-monster":2101361,"the-beloved":2099841,"goodbye-cruel-world":2102828,"what-belongs":2102830,"like-a-fortress":2102835,"minotaur":2100951,"black-money":2102836,"rose":2102123,"too-many-beasts":2102838,"messy-tribute":2102839,"everytime":2102647,"day-in-life-of-jo":2102841,"bitter-christmas":2097952,"blood-countess":2102843,"zejtune":2102844,"dreamed-adventure":2102865,"loneliest-man":2102867,"buildings-fall":2102871,"in-cod-we-trust":2102872,"fatherland":2100295,"heysel-85":2102874,"to-hold-a-mountain":2102875,"fjord":2100658,"small-talk":2102879,"tin-castle":2102881,"tristan-forever":2102883,"cochena":2102885,"paris-paris":2102925,"amazomania":2102926,"the-violinist":2102927,"born-in-the-jungle":2102928,"ashes-and-diamonds":2102889,"man-of-marble":2102888,"promised-land":2102887,"wishing-tree":2102886,"guria":2102884,"pirosmani":2102882,"supporting-role":2102878,"suram-fortress":2102876,"the-guest":2102837,"los-golfos":2102930};
+// Booking: Zawya + Nile Cinema sell on elCinema; Cimatheque uses a free Google Form.
+// Paste the Cimatheque form link here once it exists, e.g. "https://forms.gle/xxxx". Empty = "form coming soon".
+const BOOKING_FORM_CT="";
+
+// Cimatheque double bills
+const PROGRAMS = {
+ "portabella-1": {
+  "en": "Portabella programme 1",
+  "ar": "برنامج بورتابيلا ١",
+  "members": [
+   "dont-count",
+   "vampir"
+  ]
+ },
+ "portabella-2": {
+  "en": "Portabella programme 2",
+  "ar": "برنامج بورتابيلا ٢",
+  "members": [
+   "nocturno-29",
+   "la-tempesta"
+  ]
+ }
+};
+
+</script>
+<script>
+(function(){
+const VENUES={
+  Z1:{en:"Zawya 01",ar:"زاوية ١",c:"var(--z1)",i:"var(--z1i)",site:"Zawya"},
+  Z2:{en:"Zawya 02",ar:"زاوية ٢",c:"var(--z2)",i:"var(--z2i)",site:"Zawya"},
+  NC:{en:"Nile Cinema",ar:"نايل سينما",c:"var(--nc)",i:"var(--nci)",site:"Nile"},
+  CT:{en:"Cimatheque",ar:"سيماتك",c:"var(--ct)",i:"var(--cti)",site:"Cimatheque"}
+};
+const TRAVEL=20; // optional buffer between different sites (off by default)
+const F={}; FILMS.forEach(r=>{const [id,en,ar,year,dir,country,genre,min,syn,lb,lbR,lbN,imdb,imR,imN]=r; F[id]={id,en,ar,year,dir,country,genre,min,syn,lb,lbR,lbN,imdb,imR,imN,classic:year&&year<2000}});
+Object.entries(PROGRAMS).forEach(([id,p])=>{F[id]={id,en:p.en,ar:p.ar,members:p.members,min:p.members.reduce((a,m)=>a+F[m].min,0),program:true,classic:true}});
+
+const SCR=RAW.trim().split("\n").map(l=>{const [d,t,v,f,subs,age,note]=l.split("|");const [h,m]=t.split(":").map(Number);const start=new Date(d+"T"+t+":00+02:00");const film=F[f];const end=new Date(start.getTime()+film.min*60000);return{id:d+"_"+t+"_"+v,d,t,v,f,subs,age,note,start,end,film}}).sort((a,b)=>a.start-b.start||a.v.localeCompare(b.v));
+const BYID={};SCR.forEach(s=>BYID[s.id]=s);
+const DAYS=[...new Set(SCR.map(s=>s.d))];
+// festival days also include empty ones between first and last
+const allDays=[];{let x=new Date(DAYS[0]+"T12:00:00+02:00");const last=new Date(DAYS[DAYS.length-1]+"T12:00:00+02:00");while(x<=last){allDays.push(cairoDate(x));x=new Date(x.getTime()+864e5)}}
+
+function cairoDate(dt){return new Intl.DateTimeFormat("en-CA",{timeZone:"Africa/Cairo",year:"numeric",month:"2-digit",day:"2-digit"}).format(dt)}
+function fmtTime(dt){return new Intl.DateTimeFormat("en-GB",{timeZone:"Africa/Cairo",hour:"numeric",minute:"2-digit",hour12:true}).format(dt).replace(" ","").toUpperCase()}
+function dayLabel(d,opt){return new Intl.DateTimeFormat("en-GB",Object.assign({timeZone:"Africa/Cairo"},opt)).format(new Date(d+"T12:00:00+02:00"))}
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+// ---- storage ----
+// The list lives in localStorage. Never write the in-memory copy wholesale: another tab or window
+// may have changed it since this page loaded. Every change re-reads storage, applies one edit, writes.
+const KEY="pef19-picks2";
+let canStore=true;
+function readStore(){
+  const m=new Map();
+  try{const v2=localStorage.getItem(KEY);
+    if(v2) Object.entries(JSON.parse(v2)).forEach(([id,st])=>{if(BYID[id])m.set(id,st==="u"?"u":"b")});
+    else JSON.parse(localStorage.getItem("pef19-picks")||"[]").forEach(id=>{if(BYID[id])m.set(id,"b")});
+  }catch(e){canStore=false}
+  return m;
+}
+let picks=readStore();
+function edit(fn){ // fn(map) mutates a fresh copy
+  const cur=readStore(); fn(cur); picks=cur;
+  try{localStorage.setItem(KEY,JSON.stringify(Object.fromEntries(cur)));canStore=localStorage.getItem(KEY)!==null}catch(e){canStore=false}
+}
+function save(){document.getElementById("mcount").textContent=picks.size;}
+// Restore code: one token per screening, DDHHMM + venue digit (+u if not booked). Festival days never repeat a day number.
+const VC={Z1:"1",Z2:"2",NC:"N",CT:"C"}, VR={"1":"Z1","2":"Z2","N":"NC","C":"CT"};
+function backupCode(){return "PEF19:"+[...picks].map(([id,st])=>{const s=BYID[id];return s.d.slice(8)+s.t.replace(":","")+VC[s.v]+(st==="u"?"u":"")}).join(".")}
+function parseCode(txt){
+  const m=String(txt).match(/PEF19:([0-9A-Za-z.]*)/); if(!m) return null;
+  const out=new Map();
+  m[1].split(".").filter(Boolean).forEach(tok=>{const r=tok.match(/^(\d\d)(\d\d)(\d\d)([12NC])(u?)$/); if(!r) return;
+    const d=allDays.find(x=>x.slice(8)===r[1]); if(!d) return; const id=`${d}_${r[2]}:${r[3]}_${VR[r[4]]}`; if(BYID[id]) out.set(id,r[5]?"u":"b")});
+  return out;
+}
+try{const k="pef19-test";localStorage.setItem(k,"1");canStore=localStorage.getItem(k)==="1";localStorage.removeItem(k)}catch(e){canStore=false}
+const state={day:null,q:"",venue:"",arsubs:false,classics:false,sort:"lb",travel:false,mf:""};
+try{Object.assign(state,JSON.parse(localStorage.getItem("pef19-ui")||"{}"))}catch(e){}
+function saveUI(){try{localStorage.setItem("pef19-ui",JSON.stringify({venue:state.venue,arsubs:state.arsubs,sort:state.sort,travel:state.travel}))}catch(e){}}
+
+const today=cairoDate(new Date());
+if(!state.day||!allDays.includes(state.day)) state.day=allDays.includes(today)?today:allDays[0];
+
+// ---- clashes ----
+function conflicts(a,b){if(a.id===b.id)return false;const gap=(state.travel&&VENUES[a.v].site!==VENUES[b.v].site)?TRAVEL:0;return a.start< new Date(b.end.getTime()+gap*60000) && b.start< new Date(a.end.getTime()+gap*60000)}
+function clashesWith(s){return [...picks.keys()].map(id=>BYID[id]).filter(p=>p&&conflicts(s,p))}
+
+// ---- pieces ----
+function lbLink(f){
+  if(f.program||!f.id) return "";
+  const url=f.lb?"https://letterboxd.com/film/"+f.lb+"/":"https://letterboxd.com/search/films/"+encodeURIComponent(f.en)+"/";
+  const val=f.lbR?("★ "+f.lbR.toFixed(1)):"—";
+  return `<a class="rate lb" href="${url}" target="_blank" rel="noopener" title="Letterboxd${f.lbN?' · '+f.lbN.toLocaleString()+' ratings':''}"><span class="lg"><i style="background:#ff8000"></i><i style="background:#00e054"></i><i style="background:#40bcf4"></i></span>${val}</a>`;
+}
+function imLink(f){
+  if(f.program||!f.id) return "";
+  const url=f.imdb?"https://www.imdb.com/title/"+f.imdb+"/":"https://www.imdb.com/find/?q="+encodeURIComponent(f.en+" "+(f.year||""));
+  const val=f.imR?f.imR.toFixed(1):"—";
+  return `<a class="rate imdb" href="${url}" target="_blank" rel="noopener" title="IMDb${f.imN?' · '+f.imN.toLocaleString()+' ratings':''}"><span class="lg">IMDb</span>${val}</a>`;
+}
+function subsTags(s){return (s.subs.includes("A")?'<span class="tag" title="Arabic subtitles">AR</span>':'')+(s.subs.includes("E")?'<span class="tag" title="English subtitles">EN</span>':'')}
+function filmLine(f){
+  if(f.program) return f.members.map(m=>F[m].dir).filter(Boolean).filter((v,i,a)=>a.indexOf(v)===i).join(", ")+" · "+f.members.length+" films";
+  return [f.dir&&("Dir. "+f.dir),f.country,f.year].filter(Boolean).map(esc).join(" · ");
+}
+function gcal(s){
+  const f=s.film, z=d=>d.toISOString().replace(/[-:]/g,"").replace(/\.\d+Z$/,"Z");
+  const p=new URLSearchParams({action:"TEMPLATE",text:f.en+" — PEF 19",dates:z(s.start)+"/"+z(s.end),location:VENUES[s.v].en+", Cairo",details:(f.syn||"")+"\n\nPanorama of the European Film 19"});
+  return "https://calendar.google.com/calendar/render?"+p.toString();
+}
+const ZAWYA_ELC=3101183;
+function bookURL(s){
+  if(s.v==="CT") return BOOKING_FORM_CT||null;
+  const w=ELC[s.f]; if(!w) return null;
+  return s.v==="NC"?`https://elcinema.com/en/booking/${w}/`:`https://elcinema.com/en/booking/${w}/${ZAWYA_ELC}/`;
+}
+function bookLink(s,cls="book"){
+  if(s.end<new Date()) return "";
+  const u=bookURL(s), where=s.v==="CT"?"Google Form":"elCinema";
+  if(!u) return s.v==="CT"?`<span class="${cls} soon" title="Free booking through a Google Form, opening soon">Booking coming soon <small>Google Form</small></span>`:"";
+  return `<a class="${cls}" href="${u}" target="_blank" rel="noopener" data-book="${s.id}">${s.v==="CT"?"Book free seat":"Tickets"} <small>${where} ↗</small></a>`;
+}
+function addBtn(id){
+  const st=picks.get(id);
+  if(st==="u") return `<div class="addgrp"><button class="add mark" data-mark="${id}">✓ Mark as booked</button><button class="add rm" data-rm="${id}">Remove</button></div>`;
+  return `<button class="add${st==="b"?" on":st==="u"?" unb":""}" data-pick="${id}" title="${st==="b"?"Tap to remove · long-press to mark as unbooked":"Tap to add · long-press for more"}">${st==="b"?"✓ Booked":st==="u"?"◌ Not booked":"+ Add"}</button>`;
+}
+function row(s,opts={}){
+  const f=s.film, v=VENUES[s.v], on=picks.has(s.id), gone=s.end<new Date();
+  const cl=on?[]:clashesWith(s);
+  return `<div class="row${on?' picked':''}${picks.get(s.id)==="u"?' unb':''}${gone?' gone':''}" style="--vc:${v.c};--vi:${v.i}">
+    <div class="time">${fmtTime(s.start)}<small>until ${fmtTime(s.end)}</small></div>
+    <div>
+      <button class="ttl" data-film="${f.id}">${esc(f.en)}</button>
+      <span class="ttl-ar ar">${esc(f.ar)}</span>
+      <div class="sub">${filmLine(f)}</div>
+      ${f.program?`<div class="prog">${f.members.map(m=>`<button data-film="${m}">${esc(F[m].en)}</button> (${F[m].min}′)`).join(" + ")}</div>`:""}
+      <div class="tags">
+        <span class="tag venue">${v.en}</span><span class="tag">${f.min}′</span>${subsTags(s)}${s.age?`<span class="tag age">${s.age}</span>`:""}${f.classic?'<span class="tag classic">CLASSIC</span>':""}${s.note?`<span class="tag qa">${esc(s.note)}</span>`:""}
+        ${lbLink(f)}${imLink(f)}${bookLink(s)}
+      </div>
+      ${cl.length?`<div class="clash">Clashes with ${cl.map(c=>esc(c.film.en)+" ("+fmtTime(c.start)+")").join(", ")}</div>`:""}
+      ${opts.mine?`<div style="margin-top:8px"><a class="gcal" href="${gcal(s)}" target="_blank" rel="noopener">Add to Google Calendar</a></div>`:""}
+    </div>
+    <!--act-->${addBtn(s.id)}
+  </div>`;
+}
+function matches(s){
+  const q=state.q.trim().toLowerCase(), f=s.film;
+  if(state.venue&&s.v!==state.venue) return false;
+  if(state.arsubs&&!s.subs.includes("A")) return false;
+  if(state.classics&&!f.classic) return false;
+  if(q){const hay=[f.en,f.ar,f.dir,f.country,f.genre,...(f.members||[]).flatMap(m=>[F[m].en,F[m].ar,F[m].dir])].join(" ").toLowerCase(); if(!hay.includes(q)) return false}
+  return true;
+}
+function filtersHTML(withDay){
+  return `<div class="filters">
+    <input class="search" id="q" type="search" placeholder="Search film, director, country…" value="${esc(state.q)}">
+    <select class="chip" id="venue"><option value="">All venues</option>${Object.entries(VENUES).map(([k,v])=>`<option value="${k}"${state.venue===k?" selected":""}>${v.en}</option>`).join("")}</select>
+    <button class="chip${state.arsubs?' on':''}" data-toggle="arsubs">Arabic subs</button>
+    <button class="chip${state.classics?' on':''}" data-toggle="classics">Classics</button>
+  </div>`;
+}
+
+// ---- views ----
+function vSchedule(){
+  const q=state.q.trim();
+  const counts={};SCR.forEach(s=>{if(matches(s))counts[s.d]=(counts[s.d]||0)+1});
+  const pickedDays=new Set([...picks.keys()].map(id=>BYID[id]?.d));
+  let html=`<div class="days">${allDays.map(d=>`<button class="day${d===state.day?' on':''}${pickedDays.has(d)?' has':''}${d<today?' past':''}" data-day="${d}" title="${counts[d]||0} screenings">
+      <div class="dw">${dayLabel(d,{weekday:"short"})}</div><div class="dn">${dayLabel(d,{day:"numeric"})}</div><div class="dm">${dayLabel(d,{month:"short"})}</div><span class="dot"></span></button>`).join("")}</div>`;
+  html+=filtersHTML();
+  html+=`<div class="legend">${Object.values(VENUES).map(v=>`<span><i class="sw" style="display:inline-block;width:10px;height:10px;border-radius:3px;background:${v.c}"></i>${v.en}</span>`).join("")}<span>• dot = you have picks that day</span><span>Long-press + Add for “not booked”</span></div>`;
+  let list;
+  if(q){ // search spans all days
+    list=SCR.filter(matches);
+    html+=`<h2 class="dayhead"><b>${list.length} result${list.length===1?"":"s"} across the festival</b></h2>`;
+    let last="";html+=`<div class="list">`;
+    list.forEach(s=>{if(s.d!==last){last=s.d;html+=`<h2 class="dayhead" style="margin:10px 0 0"><b>${dayLabel(s.d,{weekday:"long",day:"numeric",month:"long"})}</b></h2>`}html+=row(s)});
+    html+=`</div>`;
+  }else{
+    list=SCR.filter(s=>s.d===state.day&&matches(s));
+    html+=`<h2 class="dayhead"><b>${dayLabel(state.day,{weekday:"long",day:"numeric",month:"long"})}</b><span>${list.length} screening${list.length===1?"":"s"}</span></h2>`;
+    html+=`<div class="list">${list.map(s=>row(s)).join("")||'<div class="empty">No screenings match on this day.</div>'}</div>`;
+  }
+  return html;
+}
+function nextShows(f){const now=new Date();const ids=SCR.filter(s=>s.film===f||(s.film.members||[]).includes(f.id));const up=ids.filter(s=>s.end>now);return {all:ids,up}}
+function vFilms(){
+  let films=Object.values(F).filter(f=>!f.program);
+  const q=state.q.trim().toLowerCase();
+  films=films.filter(f=>{
+    if(state.classics&&!f.classic) return false;
+    const shows=nextShows(f).all;
+    if(state.venue&&!shows.some(s=>s.v===state.venue)) return false;
+    if(state.arsubs&&!shows.some(s=>s.subs.includes("A"))) return false;
+    if(q&&![f.en,f.ar,f.dir,f.country,f.genre].join(" ").toLowerCase().includes(q)) return false;
+    return true;});
+  const S={lb:(a,b)=>(b.lbR||0)-(a.lbR||0),imdb:(a,b)=>(b.imR||0)-(a.imR||0),az:(a,b)=>a.en.localeCompare(b.en),len:(a,b)=>a.min-b.min};
+  films.sort(S[state.sort]||S.lb);
+  let html=filtersHTML();
+  html+=`<div class="filters" style="padding-top:0"><span style="font-size:13px;color:var(--muted)">${films.length} films · sort by</span>${[["lb","Letterboxd"],["imdb","IMDb"],["az","A–Z"],["len","Shortest"]].map(([k,l])=>`<button class="chip${state.sort===k?' on':''}" data-sort="${k}">${l}</button>`).join("")}</div>`;
+  html+=`<div class="grid">${films.map(f=>{const {all,up}=nextShows(f);const n=up[0];return `<button class="fc" data-film="${f.id}">
+     <h3>${esc(f.en)}</h3><span class="ar" style="text-align:left;color:var(--muted);font-size:13px">${esc(f.ar)}</span>
+     <div class="sub" style="margin:0">${filmLine(f)} · ${f.min}′</div>
+     <div class="syn">${esc(f.syn)}</div>
+     <div class="tags" onclick="event.stopPropagation()">${f.classic?'<span class="tag classic">CLASSIC</span>':''}${lbLink(f)}${imLink(f)}</div>
+     <div class="next">${n?`Next: ${dayLabel(n.d,{weekday:"short",day:"numeric",month:"short"})}, ${fmtTime(n.start)} · ${VENUES[n.v].en}`:"No more screenings"} · ${all.length} showing${all.length>1?"s":""}</div>
+   </button>`}).join("")}</div>`;
+  return html;
+}
+function vMine(){
+  const all=[...picks.keys()].map(id=>BYID[id]).filter(Boolean).sort((a,b)=>a.start-b.start);
+  const nB=all.filter(s=>picks.get(s.id)==="b").length, nU=all.length-nB;
+  if(state.mf&&!(state.mf==="b"?nB:nU)) state.mf="";
+  const list=state.mf?all.filter(s=>picks.get(s.id)===state.mf):all;
+  const mins=list.reduce((a,s)=>a+s.film.min,0);
+  const clashN=list.filter(s=>all.some(o=>conflicts(s,o))).length;
+  let html=all.length?`<div class="filters" style="padding-top:16px">${[["","All",all.length],["b","Booked",nB],["u","Not booked",nU]].map(([k,l,n])=>`<button class="chip${state.mf===k?" on":""}" data-mf="${k}"${n||!k?"":" disabled"}>${l} <span style="opacity:.7">${n}</span></button>`).join("")}</div>`:"";
+  html+=`<div class="mine-bar"><div class="stat"><b>${list.length}</b> screening${list.length===1?"":"s"} · <b>${Math.floor(mins/60)}h ${mins%60}m</b> of cinema${clashN?` · <b style="color:var(--red-d)">${clashN} clashing</b>`:""}</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="chip${state.travel?' on':''}" data-toggle="travel" title="Count it as a clash if there's less than 20 minutes between films at different venues">${state.travel?'✓ ':''}20 min between venues</button>${all.length?`<button class="btn" id="copy">Copy list + backup</button>`:""}<button class="btn ghost" id="restore">Restore</button>${all.length?`<button class="btn ghost" id="clear">Clear</button>`:""}</div></div>
+  <div class="bk" id="bk" hidden></div>
+  ${all.length?`<p class="bknote">Your list is saved in this browser. To move it to another device, use “Copy list + backup”, then Restore there.</p>`:""}`;
+  if(!canStore) html=`<div class="clash" style="display:block;margin-top:14px">This browser isn't saving your list, so it will be gone when you close the page. Use “Copy my list” to keep a copy.</div>`+html;
+  if(!all.length) html+=`<p class="bknote">Lost your list? If you copied it with a backup code before, tap <b>Restore</b> and paste it.</p>`;
+  if(!list.length) return html+`<div class="empty">Your list is empty.<br>Go to the <a href="#schedule">Schedule</a> or browse <a href="#films">Films</a> and tap “+ Add”.<br><small>Long-press “+ Add” to add a film you haven't booked yet.</small></div>`;
+  let last="",prev=null;html+=`<div class="list">`;
+  list.forEach(s=>{
+    if(s.d!==last){last=s.d;prev=null;html+=`<h2 class="dayhead" style="margin:12px 0 0"><b>${dayLabel(s.d,{weekday:"long",day:"numeric",month:"long"})}</b></h2>`}
+    if(prev){
+      const gap=Math.round((s.start-Math.min(prev.end,s.end))/60000), a=Math.abs(gap), dur=[a>=60?Math.floor(a/60)+"h":"",a%60||a<60?a%60+"m":""].filter(Boolean).join(" ");
+      const move=prev.v!==s.v?` · ${VENUES[prev.v].en} → ${VENUES[s.v].en}`:` · same screen`;
+      const cls=gap<0?"over":(gap<15||(gap<30&&VENUES[prev.v].site!==VENUES[s.v].site))?"tight":"";
+      const txt=gap<0?`Overlaps by ${dur}`:gap===0?"Back to back":`${dur} break`;
+      html+=`<div class="gap ${cls}"><span>${txt}${move}</span></div>`;
+    }
+    if(!prev||s.end>prev.end) prev=s;
+    const cl=all.filter(o=>conflicts(s,o));
+    html+=row(s,{mine:true}).replace('</div>\n    <!--act-->',(cl.length?`<div class="clash">Clashes with ${cl.map(c=>esc(c.film.en)).join(", ")}</div>`:"")+'</div>\n    <!--act-->');
+  });
+  return html+`</div>`;
+}
+function sheet(id){
+  const f=F[id]; if(!f) return;
+  const {all}=nextShows(f);
+  const el=document.getElementById("sheet");
+  el.innerHTML=`<button class="x" aria-label="Close" data-close>×</button>
+    <h2>${esc(f.en)}</h2><span class="ar">${esc(f.ar)}</span>
+    <div class="sub" style="font-size:14px">${filmLine(f)} · ${f.genre?esc(f.genre)+" · ":""}${f.min}′</div>
+    <div class="tags">${f.classic?'<span class="tag classic">CLASSIC</span>':''}${lbLink(f)}${imLink(f)}</div>
+    ${f.syn?`<p>${esc(f.syn)}</p>`:""}
+    <h4>Screenings</h4>
+    ${all.map(s=>{const on=picks.has(s.id);const cl=on?[]:clashesWith(s);return `<div class="srow" style="--vc:${VENUES[s.v].c}"><div><div class="w">${dayLabel(s.d,{weekday:"short",day:"numeric",month:"short"})} · ${fmtTime(s.start)}–${fmtTime(s.end)}</div><div class="v">${VENUES[s.v].en} · ${s.subs.split("").map(x=>x==="A"?"AR":"EN").join(" + ")} subs${s.age?" · "+s.age:""}${s.film.program?" · "+esc(s.film.en):""}${s.note?" · "+esc(s.note):""}${cl.length?` · <span style="color:var(--red-d);font-weight:600">clashes with ${esc(cl[0].film.en)}</span>`:""}</div></div><div class="sact">${bookLink(s)}${addBtn(s.id)}</div></div>`}).join("")}`;
+  document.getElementById("scrim").classList.add("on");
+  el.dataset.film=id;
+}
+function closeSheet(){document.getElementById("scrim").classList.remove("on");document.getElementById("sheet").dataset.film=""}
+
+// ---- routing & render ----
+let view="schedule";
+function route(){const h=location.hash.replace("#","");view=["schedule","films","mine"].includes(h)?h:"schedule";render(true)}
+function render(top){
+  const keepFocus=document.activeElement&&document.activeElement.id==="q"?document.activeElement.selectionStart:null;
+  const winY=window.scrollY, oldStrip=document.querySelector(".days"), stripX=oldStrip?oldStrip.scrollLeft:null;
+  const sheetEl=document.getElementById("sheet"), sheetY=sheetEl.scrollTop;
+  document.querySelectorAll("nav.tabs a").forEach(a=>a.classList.toggle("on",a.dataset.v===view));
+  document.getElementById("view").innerHTML=view==="films"?vFilms():view==="mine"?vMine():vSchedule();
+  if(keepFocus!==null){const q=document.getElementById("q");if(q){q.focus({preventScroll:true});q.setSelectionRange(keepFocus,keepFocus)}}
+  if(view==="schedule"){const strip=document.querySelector(".days"),on=strip&&strip.querySelector(".day.on");
+    if(strip){ if(top||stripX===null){ if(on) strip.scrollLeft=on.offsetLeft-strip.offsetLeft-(strip.clientWidth-on.offsetWidth)/2 } else strip.scrollLeft=stripX }}
+  if(top) window.scrollTo(0,0); else window.scrollTo(0,winY);
+  const sf=sheetEl.dataset.film; if(sf){ sheet(sf); sheetEl.scrollTop=sheetY }
+  save();
+}
+function toast(t){const el=document.getElementById("toast");el.textContent=t;el.classList.add("on");clearTimeout(toast._t);toast._t=setTimeout(()=>el.classList.remove("on"),1800)}
+
+document.addEventListener("click",e=>{
+  const menu=document.getElementById("pmenu");
+  const bk=e.target.closest("[data-book]");
+  if(bk){closeMenu(); if(picks.get(bk.dataset.book)!=="b") askBooked(bk.dataset.book); return} // link still opens
+  const ab=e.target.closest("[data-ask]");
+  if(ab){const id=document.getElementById("ask").dataset.id; hideAsk();
+    if(ab.dataset.ask==="b") setPick(id,"b"); else if(ab.dataset.ask==="u"&&!picks.has(id)) setPick(id,"u"); return}
+  const act=e.target.closest("[data-act]");
+  if(act){const id=act.dataset.id;closeMenu();
+    if(act.dataset.act==="rm"){edit(m=>m.delete(id));toast("Removed from your list");render(false)} else setPick(id,act.dataset.act);return}
+  if(lp&&lp.fired&&e.target.closest("[data-pick]")){lp=null;return} // the click that ends a long-press
+  if(menu.classList.contains("on")){closeMenu(); if(!e.target.closest("[data-pick]")) return}
+  const t=e.target.closest("[data-pick],[data-mark],[data-rm],[data-film],[data-day],[data-toggle],[data-sort],[data-mf],[data-close],[data-bkgo],[data-bkclose],#copy,#restore,#clear");
+  if(!t){ if(e.target.id==="scrim") closeSheet(); return }
+  if(t.dataset.pick){
+    const id=t.dataset.pick;if(picks.get(id)==="b"){edit(m=>m.delete(id));toast("Removed from your list");render(false)}else setPick(id,"b");return}
+  if(t.hasAttribute("data-bkclose")){document.getElementById("bk").hidden=true;return}
+  if(t.hasAttribute("data-bkgo")){const got=parseCode(document.getElementById("bkin").value);
+    if(!got||!got.size){toast("No restore code found in that text");return}
+    edit(m=>got.forEach((st,id)=>m.set(id,st)));render(false);toast(`Restored ${got.size} screening${got.size===1?"":"s"}`);return}
+  if(t.dataset.mark){setPick(t.dataset.mark,"b");return}
+  if(t.dataset.rm){const r=t.dataset.rm;edit(m=>m.delete(r));toast("Removed from your list");render(false);return}
+  if(t.dataset.mf!==undefined){state.mf=t.dataset.mf;render(false);return}
+  if(t.dataset.film){sheet(t.dataset.film);return}
+  if(t.dataset.day){state.day=t.dataset.day;render(false);return}
+  if(t.dataset.toggle){state[t.dataset.toggle]=!state[t.dataset.toggle];saveUI();render(false);return}
+  if(t.dataset.sort){state.sort=t.dataset.sort;saveUI();render(false);return}
+  if(t.hasAttribute("data-close")){closeSheet();return}
+  if(t.id==="copy"){
+    const list=[...picks.keys()].map(id=>BYID[id]).filter(Boolean).sort((a,b)=>a.start-b.start);
+    let txt="My PEF 19 picks 🎬\n",last="";
+    list.forEach(s=>{if(s.d!==last){last=s.d;txt+="\n"+dayLabel(s.d,{weekday:"short",day:"numeric",month:"short"})+"\n"}txt+=`• ${fmtTime(s.start)} ${s.film.en} — ${VENUES[s.v].en}${picks.get(s.id)==="u"?" (not booked yet)":""}\n`});
+    txt+="\nRestore code (paste into the PEF 19 page → My list → Restore):\n"+backupCode()+"\n";
+    const showBox=()=>{const bk=document.getElementById("bk");bk.hidden=false;bk.innerHTML=`<p>Copying is blocked here. Select all of this and copy it yourself:</p><textarea readonly rows="6">${esc(txt)}</textarea><div class="bkacts"><button class="btn ghost" data-bkclose>Done</button></div>`;const ta=bk.querySelector("textarea");ta.focus({preventScroll:true});ta.select()};
+    try{navigator.clipboard.writeText(txt).then(()=>toast("Copied with backup code. Keep it somewhere safe"),showBox)}catch(e){showBox()}
+    return}
+  if(t.id==="restore"){const bk=document.getElementById("bk");bk.hidden=false;
+    bk.innerHTML=`<p>Paste the text you copied with “Copy list + backup” (or just the PEF19: code):</p><textarea id="bkin" rows="5" placeholder="PEF19:…"></textarea><div class="bkacts"><button class="btn" data-bkgo>Restore list</button><button class="btn ghost" data-bkclose>Cancel</button></div>`;
+    document.getElementById("bkin").focus({preventScroll:true});return}
+  if(t.id==="clear"){if(t.dataset.sure){edit(m=>m.clear());render(false);toast("List cleared")}else{t.dataset.sure="1";t.textContent="Tap again to clear";setTimeout(()=>{if(t.isConnected){t.textContent="Clear";delete t.dataset.sure}},2500)}return}
+});
+document.addEventListener("input",e=>{if(e.target.id==="q"){state.q=e.target.value;render(false)}});
+document.addEventListener("change",e=>{if(e.target.id==="venue"){state.venue=e.target.value;saveUI();render(false)}});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"){if(document.getElementById("pmenu").classList.contains("on"))closeMenu();else if(document.getElementById("ask").classList.contains("on"))hideAsk();else closeSheet()}});
+
+// ---- long-press menu on "+ Add" ----
+function setPick(id,st){
+  const had=picks.get(id); edit(m=>m.set(id,st));
+  if(had&&had!==st) toast(st==="u"?"Marked as not booked":"Marked as booked");
+  else if(!had){const cl=clashesWith(BYID[id]);const what=st==="u"?"Added as not booked":"Added to your list";toast(cl.length?what+", but it clashes with "+cl[0].film.en:what)}
+  render(false);
+}
+function openMenu(b){
+  const id=b.dataset.pick, st=picks.get(id), m=document.getElementById("pmenu");
+  m.innerHTML=(st==="b"?[["u","Mark as unbooked","Still need to book"],["rm","Remove","Take it off your list"]]:[["b","Add","I have my ticket"],["u","Add unbooked","Still need to book"]])
+    .map(([k,l,s])=>`<button role="menuitem" data-act="${k}" data-id="${id}" class="${st===k?"cur":""}"><b>${l}</b><small>${s}</small></button>`).join("");
+  const sc=BYID[id], bu=st!=="b"&&sc.end>new Date()&&bookURL(sc);
+  if(bu) m.innerHTML+=`<a role="menuitem" href="${bu}" target="_blank" rel="noopener" data-book="${id}"><b>Book tickets ↗</b><small>${sc.v==="CT"?"Free, Google Form":"On elCinema"}</small></a>`;
+  m.classList.add("on");
+  const r=b.getBoundingClientRect(), W=m.offsetWidth, H=m.offsetHeight;
+  m.style.left=Math.max(8,Math.min(innerWidth-W-8,r.right-W))+"px";
+  m.style.top=(r.bottom+6+H<innerHeight?r.bottom+6:Math.max(8,r.top-6-H))+"px";
+  m.querySelector("button").focus({preventScroll:true});
+  if(navigator.vibrate) try{navigator.vibrate(10)}catch(e){}
+}
+function askBooked(id){
+  const s=BYID[id], el=document.getElementById("ask"), on=picks.has(id);
+  el.dataset.id=id;
+  el.innerHTML=`<button class="x2" data-ask="x" aria-label="Dismiss">×</button>
+    <p>Did you get a ticket for <b>${esc(s.film.en)}</b>?<small>${dayLabel(s.d,{weekday:"short",day:"numeric",month:"short"})} · ${fmtTime(s.start)} · ${VENUES[s.v].en}</small></p>
+    <div class="acts"><button class="yes" data-ask="b">Yes, mark as booked</button>${on?"":`<button class="no" data-ask="u">Not yet, add as unbooked</button>`}</div>`;
+  el.classList.add("on"); document.body.classList.add("asking");
+}
+function hideAsk(){document.getElementById("ask").classList.remove("on");document.body.classList.remove("asking")}
+function closeMenu(){document.getElementById("pmenu").classList.remove("on")}
+let lp=null;
+document.addEventListener("pointerdown",e=>{
+  const b=e.target.closest("[data-pick]"); if(!b||e.button>0){lp=null;return}
+  lp={b,x:e.clientX,y:e.clientY,fired:false};
+  lp.t=setTimeout(()=>{if(lp&&lp.b===b){lp.fired=true;openMenu(b)}},450);
+});
+document.addEventListener("pointermove",e=>{if(lp&&!lp.fired&&Math.hypot(e.clientX-lp.x,e.clientY-lp.y)>10){clearTimeout(lp.t);lp=null}});
+["pointerup","pointercancel"].forEach(n=>document.addEventListener(n,()=>{if(lp&&!lp.fired){clearTimeout(lp.t);lp=null}}));
+document.addEventListener("contextmenu",e=>{const b=e.target.closest("[data-pick]");if(!b)return;e.preventDefault();if(lp&&lp.b===b){clearTimeout(lp.t);lp.fired=true}else lp=null;openMenu(b)});
+window.addEventListener("scroll",closeMenu,{passive:true});
+document.getElementById("sheet").addEventListener("scroll",closeMenu,{passive:true});
+window.addEventListener("hashchange",route);
+function resync(){const fresh=readStore();const a=JSON.stringify([...fresh]),b=JSON.stringify([...picks]);if(a!==b){picks=fresh;render(false)}}
+window.addEventListener("storage",e=>{if(e.key===KEY||e.key===null)resync()});
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)resync()});
+window.addEventListener("focus",resync);
+window.addEventListener("pageshow",resync);
+route();
+})();
+</script>
+</body>
+</html>
