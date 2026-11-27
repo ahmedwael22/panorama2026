@@ -45,9 +45,10 @@ nav.tabs .count{display:inline-block;min-width:20px;padding:0 6px;margin-left:6p
 .day .dm{font-size:10px;color:var(--muted)}
 .day.on{background:var(--red);border-color:var(--red)}
 .day.on *{color:#fff}
-.day .dot{display:block;width:6px;height:6px;border-radius:50%;background:var(--ink);margin:4px auto 0;opacity:0}
-.day.has .dot{opacity:1}
-.day.on .dot{background:#fff}
+.day .dots{display:flex;justify-content:center;align-items:center;gap:var(--g,2px);height:6px;margin:4px 5px 0;color:var(--ink)}
+.day .dots i{flex:none;width:var(--ds,6px);height:var(--ds,6px);border-radius:50%;background:currentColor}
+.day .dots i.u{background:none;border:1px solid currentColor}
+.day.on .dots{color:#fff}
 .day.past{opacity:.55}
 
 /* filters */
@@ -586,14 +587,25 @@ function hideChips(withChosen){
 }
 
 // ---- views ----
+// One dot per pick (hollow = unbooked). Dots shrink so they always fit the day button.
+function dotsHTML(sts){
+  if(!sts.length) return `<div class="dots"></div>`;
+  const ROOM=52, n=sts.length;
+  const gap=n>8?1:2;
+  const size=Math.max(2,Math.min(6,(ROOM-gap*(n-1))/n));
+  return `<div class="dots" style="--ds:${size.toFixed(2)}px;--g:${gap}px">${sts.map(st=>`<i${st==="u"?' class="u"':""}></i>`).join("")}</div>`;
+}
 function vSchedule(){
   const q=state.q.trim();
   const counts={};SCR.forEach(s=>{if(matches(s)&&!isHidden(s))counts[s.d]=(counts[s.d]||0)+1});
   const pickedDays=new Set([...picks.keys()].map(id=>BYID[id]?.d));
+  const dayPicks={}; // chronological picks per day, for the dots
+  [...picks].map(([id,st])=>({s:BYID[id],st})).filter(x=>x.s).sort((a,b)=>a.s.start-b.s.start)
+    .forEach(({s,st})=>(dayPicks[s.d]=dayPicks[s.d]||[]).push(st));
   let html=`<div class="days">${allDays.map(d=>`<button class="day${d===state.day?' on':''}${pickedDays.has(d)?' has':''}${d<today?' past':''}" data-day="${d}" title="${counts[d]||0} screenings">
-      <div class="dw">${dayLabel(d,{weekday:"short"})}</div><div class="dn">${dayLabel(d,{day:"numeric"})}</div><div class="dm">${dayLabel(d,{month:"short"})}</div><span class="dot"></span></button>`).join("")}</div>`;
+      <div class="dw">${dayLabel(d,{weekday:"short"})}</div><div class="dn">${dayLabel(d,{day:"numeric"})}</div><div class="dm">${dayLabel(d,{month:"short"})}</div>${dotsHTML(dayPicks[d]||[])}</button>`).join("")}</div>`;
   html+=filtersHTML(true);
-  html+=`<div class="legend">${Object.values(VENUES).map(v=>`<span><i class="sw" style="display:inline-block;width:10px;height:10px;border-radius:3px;background:${v.c}"></i>${v.en}</span>`).join("")}<span>• dot = you have picks that day</span><span>Long-press + Add for “not booked”</span></div>`;
+  html+=`<div class="legend">${Object.values(VENUES).map(v=>`<span><i class="sw" style="display:inline-block;width:10px;height:10px;border-radius:3px;background:${v.c}"></i>${v.en}</span>`).join("")}<span>• one dot per pick that day, ○ = not booked</span><span>Long-press + Add for “not booked”</span></div>`;
   let list;
   if(q){ // search spans all days
     const found=SCR.filter(matches);
