@@ -534,7 +534,7 @@ function dupTag(s){
   const {o,st}=d[0], booked=st==="b";
   const when=dayLabel(o.d,{weekday:"short",day:"numeric"})+" · "+fmtTime(o.start);
   const tip=`${booked?"Booked":"On your list, not booked"}: ${o.film.en}, ${when}, ${VENUES[o.v].en}`;
-  return `<span class="tag dup${booked?"":" unb"}" title="${esc(tip)}">${booked?"✓ Booked":"◌ Unbooked"} ${when}${d.length>1?` +${d.length-1}`:""}</span>`;
+  return `<span class="tag dup${booked?"":" unb"}" title="${esc(tip)}">${booked?"✓ Booked":"◌ Planned"} ${when}${d.length>1?` +${d.length-1}`:""}</span>`;
 }
 function hideBtn(s){
   if(isMarked(s)) return `<button class="hidebtn un" data-unhide="${s.id}">Unhide</button>`;
