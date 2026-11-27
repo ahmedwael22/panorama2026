@@ -518,14 +518,13 @@ function addBtn(id){
   return `<button class="add${st==="b"?" on":st==="u"?" unb":""}" data-pick="${id}" title="${st==="b"?"Tap to remove · long-press to mark as unbooked":"Tap to add · long-press for more"}">${st==="b"?"✓ Booked":st==="u"?"◌ Not booked":"+ Add"}</button>`;
 }
 function hideBtn(s){
-  if(hide.chosen) return `<button class="hidebtn" data-hide="${s.id}" title="Tap to hide this screening · long-press for all screenings">Hide</button>`;
   if(isMarked(s)) return `<button class="hidebtn un" data-unhide="${s.id}">Unhide</button>`;
-  return "";
+  return `<button class="hidebtn" data-hide="${s.id}" title="Tap to hide this screening · long-press for all screenings">Hide</button>`;
 }
 function row(s,opts={}){
   const f=s.film, v=VENUES[s.v], on=picks.has(s.id), gone=s.end<new Date();
   const cl=on?[]:clashesWith(s);
-  const marked=!hide.chosen&&isMarked(s); // only visible as "marked" while the toggle is off
+  const marked=isMarked(s); // only seen while "Hide chosen" is off; otherwise the row is filtered out
   return `<div class="row${on?' picked':''}${picks.get(s.id)==="u"?' unb':''}${gone?' gone':''}${marked?' marked':''}" style="--vc:${v.c};--vi:${v.i}">
     <div class="time">${fmtTime(s.start)}<small>until ${fmtTime(s.end)}</small></div>
     <div>
@@ -752,7 +751,8 @@ function setPick(id,st){
 function hideIt(id,scope){
   const s=BYID[id]; if(!s) return;
   editHide(h=>{if(scope==="f") h.f[s.f]=1; else h.s[id]=1});
-  toast(scope==="f"?`All screenings of ${s.film.en} hidden`:"Screening hidden");
+  const what=scope==="f"?`All screenings of ${s.film.en} hidden`:"Screening hidden";
+  toast(hide.chosen?what:what+". Turn on “Hide chosen” to remove from view");
   render(false);
 }
 function openMenu(b){
