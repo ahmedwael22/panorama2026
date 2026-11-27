@@ -96,6 +96,12 @@ h2.dayhead b{color:var(--ink);font-size:18px}
 .add.rm{border-color:var(--line);color:var(--muted);font-weight:600}
 .add.rm:hover{border-color:var(--ink);color:var(--ink)}
 .row.unb{border-style:dashed;box-shadow:none}
+.acol{display:flex;flex-direction:column;gap:6px;align-items:stretch}
+.hidebtn{border:0;background:none;color:var(--muted);font-size:12px;font-weight:600;padding:5px 10px;border-radius:999px;white-space:nowrap;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;touch-action:manipulation}
+.hidebtn:hover{color:var(--ink);background:#f6eeee}
+.hidebtn.un{border:1px solid var(--line);color:var(--ink);background:#fff}
+.row.marked{opacity:.55;border-style:dotted}
+.tag.hid{background:#e9e2e2;color:var(--muted)}
 .chip:disabled{opacity:.45;cursor:default}
 .book{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;text-decoration:none;padding:3px 8px;border-radius:6px;background:var(--ink);color:#fff;white-space:nowrap}
 .book small{font-weight:500;opacity:.75;font-size:11px}
@@ -170,7 +176,7 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:12px;line-h
 @media(max-width:560px){
   .row{grid-template-columns:76px 1fr;padding-right:12px}
   .time{padding-left:16px;font-size:15px}
-  .row .add,.row .addgrp{grid-column:2;justify-self:start}
+  .row .acol{grid-column:2;justify-self:start;flex-direction:row;flex-wrap:wrap;align-items:center}
   .row .addgrp{flex-direction:row;flex-wrap:wrap}
   .meta{text-align:left}
 }
@@ -197,7 +203,7 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:12px;line-h
 
 <footer><div class="wrap">
   Unofficial guide made by a film fan, not affiliated with Zawya or the Panorama. Screening times are taken from the official PEF 19 schedule. Synopses come from Letterboxd; ratings from Letterboxd and IMDb as of 23 Nov 2026. Check Zawya's channels for booking details and last-minute changes.<br>
-  Badges: <b>AR</b> Arabic subtitles · <b>EN</b> English subtitles · <b>12+ / 16+ / 18+</b> age rating. Long-press (or right-click) “+ Add” to add a film you haven't booked yet. Tickets for Zawya and Nile Cinema are sold on elCinema; Cimatheque screenings are free and booked through a Google Form. Your list is saved in this browser. To move it to another phone or browser, use “Copy list + backup” in My list, then Restore on the other device.
+  Badges: <b>AR</b> Arabic subtitles · <b>EN</b> English subtitles · <b>12+ / 16+ / 18+</b> age rating. Long-press (or right-click) “+ Add” to add a film you haven't booked yet. “Hide ended” and “Hide chosen” tidy up the Schedule and My list (never Films); long-press “Hide” to hide every screening of a film. Tickets for Zawya and Nile Cinema are sold on elCinema; Cimatheque screenings are free and booked through a Google Form. Your list is saved in this browser. To move it to another phone or browser, use “Copy list + backup” in My list, then Restore on the other device.
 </div></footer>
 
 <div class="scrim" id="scrim"><div class="sheet" id="sheet"></div></div>
@@ -443,6 +449,27 @@ const state={day:null,q:"",venue:"",arsubs:false,classics:false,sort:"lb",travel
 try{Object.assign(state,JSON.parse(localStorage.getItem("pef19-ui")||"{}"))}catch(e){}
 function saveUI(){try{localStorage.setItem("pef19-ui",JSON.stringify({venue:state.venue,arsubs:state.arsubs,sort:state.sort,travel:state.travel}))}catch(e){}}
 
+// ---- hiding ----
+// Own key, so older keys stay untouched. Same re-read-then-write pattern as picks.
+// { ended, chosen: toggles; s: {screeningId:1}; f: {filmId:1} }
+const HKEY="pef19-hide";
+function readHide(){
+  const h={ended:false,chosen:false,s:{},f:{}};
+  try{const v=JSON.parse(localStorage.getItem(HKEY)||"{}");
+    h.ended=v.ended===true; h.chosen=v.chosen===true;
+    if(v.s&&typeof v.s==="object") h.s=v.s;
+    if(v.f&&typeof v.f==="object") h.f=v.f;
+  }catch(e){}
+  return h;
+}
+let hide=readHide();
+function editHide(fn){
+  const cur=readHide(); fn(cur); hide=cur;
+  try{localStorage.setItem(HKEY,JSON.stringify(cur))}catch(e){}
+}
+function isMarked(s){return !!(hide.s[s.id]||hide.f[s.f])}
+function isHidden(s){return (hide.ended&&s.end<new Date())||(hide.chosen&&isMarked(s))}
+
 const today=cairoDate(new Date());
 if(!state.day||!allDays.includes(state.day)) state.day=allDays.includes(today)?today:allDays[0];
 
@@ -490,10 +517,16 @@ function addBtn(id){
   if(st==="u") return `<div class="addgrp"><button class="add mark" data-mark="${id}">✓ Mark as booked</button><button class="add rm" data-rm="${id}">Remove</button></div>`;
   return `<button class="add${st==="b"?" on":st==="u"?" unb":""}" data-pick="${id}" title="${st==="b"?"Tap to remove · long-press to mark as unbooked":"Tap to add · long-press for more"}">${st==="b"?"✓ Booked":st==="u"?"◌ Not booked":"+ Add"}</button>`;
 }
+function hideBtn(s){
+  if(hide.chosen) return `<button class="hidebtn" data-hide="${s.id}" title="Tap to hide this screening · long-press for all screenings">Hide</button>`;
+  if(isMarked(s)) return `<button class="hidebtn un" data-unhide="${s.id}">Unhide</button>`;
+  return "";
+}
 function row(s,opts={}){
   const f=s.film, v=VENUES[s.v], on=picks.has(s.id), gone=s.end<new Date();
   const cl=on?[]:clashesWith(s);
-  return `<div class="row${on?' picked':''}${picks.get(s.id)==="u"?' unb':''}${gone?' gone':''}" style="--vc:${v.c};--vi:${v.i}">
+  const marked=!hide.chosen&&isMarked(s); // only visible as "marked" while the toggle is off
+  return `<div class="row${on?' picked':''}${picks.get(s.id)==="u"?' unb':''}${gone?' gone':''}${marked?' marked':''}" style="--vc:${v.c};--vi:${v.i}">
     <div class="time">${fmtTime(s.start)}<small>until ${fmtTime(s.end)}</small></div>
     <div>
       <button class="ttl" data-film="${f.id}">${esc(f.en)}</button>
@@ -501,13 +534,13 @@ function row(s,opts={}){
       <div class="sub">${filmLine(f)}</div>
       ${f.program?`<div class="prog">${f.members.map(m=>`<button data-film="${m}">${esc(F[m].en)}</button> (${F[m].min}′)`).join(" + ")}</div>`:""}
       <div class="tags">
-        <span class="tag venue">${v.en}</span><span class="tag">${f.min}′</span>${subsTags(s)}${s.age?`<span class="tag age">${s.age}</span>`:""}${f.classic?'<span class="tag classic">CLASSIC</span>':""}${s.note?`<span class="tag qa">${esc(s.note)}</span>`:""}
+        <span class="tag venue">${v.en}</span><span class="tag">${f.min}′</span>${subsTags(s)}${s.age?`<span class="tag age">${s.age}</span>`:""}${f.classic?'<span class="tag classic">CLASSIC</span>':""}${s.note?`<span class="tag qa">${esc(s.note)}</span>`:""}${marked?'<span class="tag hid">HIDDEN</span>':""}
         ${lbLink(f)}${imLink(f)}${bookLink(s)}
       </div>
       ${cl.length?`<div class="clash">Clashes with ${cl.map(c=>esc(c.film.en)+" ("+fmtTime(c.start)+")").join(", ")}</div>`:""}
       ${opts.mine?`<div style="margin-top:8px"><a class="gcal" href="${gcal(s)}" target="_blank" rel="noopener">Add to Google Calendar</a></div>`:""}
     </div>
-    <!--act-->${addBtn(s.id)}
+    <!--act--><div class="acol">${addBtn(s.id)}${hideBtn(s)}</div>
   </div>`;
 }
 function matches(s){
@@ -518,35 +551,46 @@ function matches(s){
   if(q){const hay=[f.en,f.ar,f.dir,f.country,f.genre,...(f.members||[]).flatMap(m=>[F[m].en,F[m].ar,F[m].dir])].join(" ").toLowerCase(); if(!hay.includes(q)) return false}
   return true;
 }
-function filtersHTML(withDay){
+function filtersHTML(withHide){
   return `<div class="filters">
     <input class="search" id="q" type="search" placeholder="Search film, director, country…" value="${esc(state.q)}">
     <select class="chip" id="venue"><option value="">All venues</option>${Object.entries(VENUES).map(([k,v])=>`<option value="${k}"${state.venue===k?" selected":""}>${v.en}</option>`).join("")}</select>
     <button class="chip${state.arsubs?' on':''}" data-toggle="arsubs">Arabic subs</button>
     <button class="chip${state.classics?' on':''}" data-toggle="classics">Classics</button>
+    ${withHide?hideChips():""}
   </div>`;
+}
+// Only used in Schedule and My list. Films never hides anything.
+function hideChips(){
+  const n=Object.keys(hide.s).filter(id=>BYID[id]).length+Object.keys(hide.f).filter(id=>F[id]).length;
+  return `<button class="chip${hide.ended?' on':''}" data-htoggle="ended" title="Hide screenings that have already finished">Hide ended</button><button class="chip${hide.chosen?' on':''}" data-htoggle="chosen" title="Hide the screenings and films you chose to hide">Hide chosen${n?` <span style="opacity:.7">${n}</span>`:""}</button>`;
 }
 
 // ---- views ----
 function vSchedule(){
   const q=state.q.trim();
-  const counts={};SCR.forEach(s=>{if(matches(s))counts[s.d]=(counts[s.d]||0)+1});
+  const counts={};SCR.forEach(s=>{if(matches(s)&&!isHidden(s))counts[s.d]=(counts[s.d]||0)+1});
   const pickedDays=new Set([...picks.keys()].map(id=>BYID[id]?.d));
   let html=`<div class="days">${allDays.map(d=>`<button class="day${d===state.day?' on':''}${pickedDays.has(d)?' has':''}${d<today?' past':''}" data-day="${d}" title="${counts[d]||0} screenings">
       <div class="dw">${dayLabel(d,{weekday:"short"})}</div><div class="dn">${dayLabel(d,{day:"numeric"})}</div><div class="dm">${dayLabel(d,{month:"short"})}</div><span class="dot"></span></button>`).join("")}</div>`;
-  html+=filtersHTML();
+  html+=filtersHTML(true);
   html+=`<div class="legend">${Object.values(VENUES).map(v=>`<span><i class="sw" style="display:inline-block;width:10px;height:10px;border-radius:3px;background:${v.c}"></i>${v.en}</span>`).join("")}<span>• dot = you have picks that day</span><span>Long-press + Add for “not booked”</span></div>`;
   let list;
   if(q){ // search spans all days
-    list=SCR.filter(matches);
-    html+=`<h2 class="dayhead"><b>${list.length} result${list.length===1?"":"s"} across the festival</b></h2>`;
+    const found=SCR.filter(matches);
+    list=found.filter(s=>!isHidden(s));
+    const nh=found.length-list.length;
+    html+=`<h2 class="dayhead"><b>${list.length} result${list.length===1?"":"s"} across the festival</b>${nh?`<span>${nh} hidden</span>`:""}</h2>`;
     let last="";html+=`<div class="list">`;
     list.forEach(s=>{if(s.d!==last){last=s.d;html+=`<h2 class="dayhead" style="margin:10px 0 0"><b>${dayLabel(s.d,{weekday:"long",day:"numeric",month:"long"})}</b></h2>`}html+=row(s)});
     html+=`</div>`;
   }else{
-    list=SCR.filter(s=>s.d===state.day&&matches(s));
-    html+=`<h2 class="dayhead"><b>${dayLabel(state.day,{weekday:"long",day:"numeric",month:"long"})}</b><span>${list.length} screening${list.length===1?"":"s"}</span></h2>`;
-    html+=`<div class="list">${list.map(s=>row(s)).join("")||'<div class="empty">No screenings match on this day.</div>'}</div>`;
+    const dayList=SCR.filter(s=>s.d===state.day&&matches(s));
+    list=dayList.filter(s=>!isHidden(s));
+    const nh=dayList.length-list.length;
+    const empty=nh?"Everything on this day is hidden.":"No screenings match on this day.";
+    html+=`<h2 class="dayhead"><b>${dayLabel(state.day,{weekday:"long",day:"numeric",month:"long"})}</b><span>${list.length} screening${list.length===1?"":"s"}${nh?` · ${nh} hidden`:""}</span></h2>`;
+    html+=`<div class="list">${list.map(s=>row(s)).join("")||`<div class="empty">${empty}</div>`}</div>`;
   }
   return html;
 }
@@ -576,18 +620,20 @@ function vFilms(){
 }
 function vMine(){
   const all=[...picks.keys()].map(id=>BYID[id]).filter(Boolean).sort((a,b)=>a.start-b.start);
-  const nB=all.filter(s=>picks.get(s.id)==="b").length, nU=all.length-nB;
+  const vis=all.filter(s=>!isHidden(s)), nH=all.length-vis.length;
+  const nB=vis.filter(s=>picks.get(s.id)==="b").length, nU=vis.length-nB;
   if(state.mf&&!(state.mf==="b"?nB:nU)) state.mf="";
-  const list=state.mf?all.filter(s=>picks.get(s.id)===state.mf):all;
+  const list=state.mf?vis.filter(s=>picks.get(s.id)===state.mf):vis;
   const mins=list.reduce((a,s)=>a+s.film.min,0);
   const clashN=list.filter(s=>all.some(o=>conflicts(s,o))).length;
-  let html=all.length?`<div class="filters" style="padding-top:16px">${[["","All",all.length],["b","Booked",nB],["u","Not booked",nU]].map(([k,l,n])=>`<button class="chip${state.mf===k?" on":""}" data-mf="${k}"${n||!k?"":" disabled"}>${l} <span style="opacity:.7">${n}</span></button>`).join("")}</div>`:"";
-  html+=`<div class="mine-bar"><div class="stat"><b>${list.length}</b> screening${list.length===1?"":"s"} · <b>${Math.floor(mins/60)}h ${mins%60}m</b> of cinema${clashN?` · <b style="color:var(--red-d)">${clashN} clashing</b>`:""}</div>
+  let html=all.length?`<div class="filters" style="padding-top:16px">${[["","All",vis.length],["b","Booked",nB],["u","Not booked",nU]].map(([k,l,n])=>`<button class="chip${state.mf===k?" on":""}" data-mf="${k}"${n||!k?"":" disabled"}>${l} <span style="opacity:.7">${n}</span></button>`).join("")}${hideChips()}</div>`:"";
+  html+=`<div class="mine-bar"><div class="stat"><b>${list.length}</b> screening${list.length===1?"":"s"} · <b>${Math.floor(mins/60)}h ${mins%60}m</b> of cinema${clashN?` · <b style="color:var(--red-d)">${clashN} clashing</b>`:""}${nH?` · ${nH} hidden`:""}</div>
     <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="chip${state.travel?' on':''}" data-toggle="travel" title="Count it as a clash if there's less than 20 minutes between films at different venues">${state.travel?'✓ ':''}20 min between venues</button>${all.length?`<button class="btn" id="copy">Copy list + backup</button>`:""}<button class="btn ghost" id="restore">Restore</button>${all.length?`<button class="btn ghost" id="clear">Clear</button>`:""}</div></div>
   <div class="bk" id="bk" hidden></div>
   ${all.length?`<p class="bknote">Your list is saved in this browser. To move it to another device, use “Copy list + backup”, then Restore there.</p>`:""}`;
   if(!canStore) html=`<div class="clash" style="display:block;margin-top:14px">This browser isn't saving your list, so it will be gone when you close the page. Use “Copy my list” to keep a copy.</div>`+html;
   if(!all.length) html+=`<p class="bknote">Lost your list? If you copied it with a backup code before, tap <b>Restore</b> and paste it.</p>`;
+  if(!list.length&&nH&&!vis.length) return html+`<div class="empty">All ${nH} screening${nH===1?"":"s"} in your list are hidden.<br><small>Turn off “Hide ended” or “Hide chosen” to see them.</small></div>`;
   if(!list.length) return html+`<div class="empty">Your list is empty.<br>Go to the <a href="#schedule">Schedule</a> or browse <a href="#films">Films</a> and tap “+ Add”.<br><small>Long-press “+ Add” to add a film you haven't booked yet.</small></div>`;
   let last="",prev=null;html+=`<div class="list">`;
   list.forEach(s=>{
@@ -615,7 +661,7 @@ function sheet(id){
     <div class="tags">${f.classic?'<span class="tag classic">CLASSIC</span>':''}${lbLink(f)}${imLink(f)}</div>
     ${f.syn?`<p>${esc(f.syn)}</p>`:""}
     <h4>Screenings</h4>
-    ${all.map(s=>{const on=picks.has(s.id);const cl=on?[]:clashesWith(s);return `<div class="srow" style="--vc:${VENUES[s.v].c}"><div><div class="w">${dayLabel(s.d,{weekday:"short",day:"numeric",month:"short"})} · ${fmtTime(s.start)}–${fmtTime(s.end)}</div><div class="v">${VENUES[s.v].en} · ${s.subs.split("").map(x=>x==="A"?"AR":"EN").join(" + ")} subs${s.age?" · "+s.age:""}${s.film.program?" · "+esc(s.film.en):""}${s.note?" · "+esc(s.note):""}${cl.length?` · <span style="color:var(--red-d);font-weight:600">clashes with ${esc(cl[0].film.en)}</span>`:""}</div></div><div class="sact">${bookLink(s)}${addBtn(s.id)}</div></div>`}).join("")}`;
+    ${all.map(s=>{const on=picks.has(s.id);const cl=on?[]:clashesWith(s);return `<div class="srow" style="--vc:${VENUES[s.v].c}"><div><div class="w">${dayLabel(s.d,{weekday:"short",day:"numeric",month:"short"})} · ${fmtTime(s.start)}–${fmtTime(s.end)}</div><div class="v">${VENUES[s.v].en} · ${s.subs.split("").map(x=>x==="A"?"AR":"EN").join(" + ")} subs${s.age?" · "+s.age:""}${s.film.program?" · "+esc(s.film.en):""}${s.note?" · "+esc(s.note):""}${cl.length?` · <span style="color:var(--red-d);font-weight:600">clashes with ${esc(cl[0].film.en)}</span>`:""}${isMarked(s)?" · hidden in Schedule and My list":""}</div></div><div class="sact">${bookLink(s)}${addBtn(s.id)}${isMarked(s)?`<button class="hidebtn un" data-unhide="${s.id}">Unhide</button>`:""}</div></div>`}).join("")}`;
   document.getElementById("scrim").classList.add("on");
   el.dataset.film=id;
 }
@@ -649,9 +695,11 @@ document.addEventListener("click",e=>{
   const act=e.target.closest("[data-act]");
   if(act){const id=act.dataset.id;closeMenu();
     if(act.dataset.act==="rm"){edit(m=>m.delete(id));toast("Removed from your list");render(false)} else setPick(id,act.dataset.act);return}
-  if(lp&&lp.fired&&e.target.closest("[data-pick]")){lp=null;return} // the click that ends a long-press
-  if(menu.classList.contains("on")){closeMenu(); if(!e.target.closest("[data-pick]")) return}
-  const t=e.target.closest("[data-pick],[data-mark],[data-rm],[data-film],[data-day],[data-toggle],[data-sort],[data-mf],[data-close],[data-bkgo],[data-bkclose],#copy,#restore,#clear");
+  const hact=e.target.closest("[data-hact]");
+  if(hact){closeMenu();hideIt(hact.dataset.id,hact.dataset.hact);return}
+  if(lp&&lp.fired&&e.target.closest("[data-pick],[data-hide]")){lp=null;return} // the click that ends a long-press
+  if(menu.classList.contains("on")){closeMenu(); if(!e.target.closest("[data-pick],[data-hide]")) return}
+  const t=e.target.closest("[data-pick],[data-mark],[data-rm],[data-hide],[data-unhide],[data-htoggle],[data-film],[data-day],[data-toggle],[data-sort],[data-mf],[data-close],[data-bkgo],[data-bkclose],#copy,#restore,#clear");
   if(!t){ if(e.target.id==="scrim") closeSheet(); return }
   if(t.dataset.pick){
     const id=t.dataset.pick;if(picks.get(id)==="b"){edit(m=>m.delete(id));toast("Removed from your list");render(false)}else setPick(id,"b");return}
@@ -659,6 +707,16 @@ document.addEventListener("click",e=>{
   if(t.hasAttribute("data-bkgo")){const got=parseCode(document.getElementById("bkin").value);
     if(!got||!got.size){toast("No restore code found in that text");return}
     edit(m=>got.forEach((st,id)=>m.set(id,st)));render(false);toast(`Restored ${got.size} screening${got.size===1?"":"s"}`);return}
+  if(t.dataset.hide){hideIt(t.dataset.hide,"s");return}
+  if(t.dataset.unhide){
+    const s=BYID[t.dataset.unhide], wasFilm=!!hide.f[s.f];
+    editHide(h=>{delete h.s[s.id];delete h.f[s.f]});
+    toast(wasFilm?`All screenings of ${s.film.en} shown again`:"Screening shown again");render(false);return}
+  if(t.dataset.htoggle){
+    const k=t.dataset.htoggle;
+    editHide(h=>{h[k]=!h[k]});
+    if(k==="chosen"&&hide.chosen&&!Object.keys(hide.s).length&&!Object.keys(hide.f).length) toast("Tap “Hide” on a screening. Long-press it to hide the whole film");
+    render(false);return}
   if(t.dataset.mark){setPick(t.dataset.mark,"b");return}
   if(t.dataset.rm){const r=t.dataset.rm;edit(m=>m.delete(r));toast("Removed from your list");render(false);return}
   if(t.dataset.mf!==undefined){state.mf=t.dataset.mf;render(false);return}
@@ -691,12 +749,25 @@ function setPick(id,st){
   else if(!had){const cl=clashesWith(BYID[id]);const what=st==="u"?"Added as not booked":"Added to your list";toast(cl.length?what+", but it clashes with "+cl[0].film.en:what)}
   render(false);
 }
+function hideIt(id,scope){
+  const s=BYID[id]; if(!s) return;
+  editHide(h=>{if(scope==="f") h.f[s.f]=1; else h.s[id]=1});
+  toast(scope==="f"?`All screenings of ${s.film.en} hidden`:"Screening hidden");
+  render(false);
+}
 function openMenu(b){
-  const id=b.dataset.pick, st=picks.get(id), m=document.getElementById("pmenu");
-  m.innerHTML=(st==="b"?[["u","Mark as unbooked","Still need to book"],["rm","Remove","Take it off your list"]]:[["b","Add","I have my ticket"],["u","Add unbooked","Still need to book"]])
-    .map(([k,l,s])=>`<button role="menuitem" data-act="${k}" data-id="${id}" class="${st===k?"cur":""}"><b>${l}</b><small>${s}</small></button>`).join("");
-  const sc=BYID[id], bu=st!=="b"&&sc.end>new Date()&&bookURL(sc);
-  if(bu) m.innerHTML+=`<a role="menuitem" href="${bu}" target="_blank" rel="noopener" data-book="${id}"><b>Book tickets ↗</b><small>${sc.v==="CT"?"Free, Google Form":"On elCinema"}</small></a>`;
+  const m=document.getElementById("pmenu");
+  if(b.dataset.hide){
+    const s=BYID[b.dataset.hide];
+    m.innerHTML=[["s","Hide this screening","Only this time and venue"],["f","Hide all screenings","Seen it already"]]
+      .map(([k,l,t])=>`<button role="menuitem" data-hact="${k}" data-id="${s.id}"><b>${l}</b><small>${t}</small></button>`).join("");
+  }else{
+    const id=b.dataset.pick, st=picks.get(id);
+    m.innerHTML=(st==="b"?[["u","Mark as unbooked","Still need to book"],["rm","Remove","Take it off your list"]]:[["b","Add","I have my ticket"],["u","Add unbooked","Still need to book"]])
+      .map(([k,l,s])=>`<button role="menuitem" data-act="${k}" data-id="${id}" class="${st===k?"cur":""}"><b>${l}</b><small>${s}</small></button>`).join("");
+    const sc=BYID[id], bu=st!=="b"&&sc.end>new Date()&&bookURL(sc);
+    if(bu) m.innerHTML+=`<a role="menuitem" href="${bu}" target="_blank" rel="noopener" data-book="${id}"><b>Book tickets ↗</b><small>${sc.v==="CT"?"Free, Google Form":"On elCinema"}</small></a>`;
+  }
   m.classList.add("on");
   const r=b.getBoundingClientRect(), W=m.offsetWidth, H=m.offsetHeight;
   m.style.left=Math.max(8,Math.min(innerWidth-W-8,r.right-W))+"px";
@@ -716,18 +787,30 @@ function hideAsk(){document.getElementById("ask").classList.remove("on");documen
 function closeMenu(){document.getElementById("pmenu").classList.remove("on")}
 let lp=null;
 document.addEventListener("pointerdown",e=>{
-  const b=e.target.closest("[data-pick]"); if(!b||e.button>0){lp=null;return}
+  const b=e.target.closest("[data-pick],[data-hide]"); if(!b||e.button>0){lp=null;return}
   lp={b,x:e.clientX,y:e.clientY,fired:false};
   lp.t=setTimeout(()=>{if(lp&&lp.b===b){lp.fired=true;openMenu(b)}},450);
 });
 document.addEventListener("pointermove",e=>{if(lp&&!lp.fired&&Math.hypot(e.clientX-lp.x,e.clientY-lp.y)>10){clearTimeout(lp.t);lp=null}});
 ["pointerup","pointercancel"].forEach(n=>document.addEventListener(n,()=>{if(lp&&!lp.fired){clearTimeout(lp.t);lp=null}}));
-document.addEventListener("contextmenu",e=>{const b=e.target.closest("[data-pick]");if(!b)return;e.preventDefault();if(lp&&lp.b===b){clearTimeout(lp.t);lp.fired=true}else lp=null;openMenu(b)});
+document.addEventListener("contextmenu",e=>{const b=e.target.closest("[data-pick],[data-hide]");if(!b)return;e.preventDefault();if(lp&&lp.b===b){clearTimeout(lp.t);lp.fired=true}else lp=null;openMenu(b)});
 window.addEventListener("scroll",closeMenu,{passive:true});
 document.getElementById("sheet").addEventListener("scroll",closeMenu,{passive:true});
 window.addEventListener("hashchange",route);
-function resync(){const fresh=readStore();const a=JSON.stringify([...fresh]),b=JSON.stringify([...picks]);if(a!==b){picks=fresh;render(false)}}
-window.addEventListener("storage",e=>{if(e.key===KEY||e.key===null)resync()});
+function resync(){
+  const fresh=readStore(), freshHide=readHide();
+  const samePicks=JSON.stringify([...fresh])===JSON.stringify([...picks]);
+  const sameHide=JSON.stringify(freshHide)===JSON.stringify(hide);
+  if(!samePicks||!sameHide){picks=fresh;hide=freshHide;render(false)}
+}
+window.addEventListener("storage",e=>{if(e.key===KEY||e.key===HKEY||e.key===null)resync()});
+// Re-render when a screening ends, so "Hide ended" and the dimmed "gone" rows stay current.
+let lastTick=new Date();
+setInterval(()=>{
+  const now=new Date();
+  if(view!=="films"&&SCR.some(s=>s.end>lastTick&&s.end<=now)) render(false);
+  lastTick=now;
+},30000);
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)resync()});
 window.addEventListener("focus",resync);
 window.addEventListener("pageshow",resync);
