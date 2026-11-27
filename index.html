@@ -205,7 +205,7 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:12px;line-h
 
 <footer><div class="wrap">
   Unofficial guide made by a film fan, not affiliated with Zawya or the Panorama. Screening times are taken from the official PEF 19 schedule. Synopses come from Letterboxd; ratings from Letterboxd and IMDb as of 23 Nov 2026. Check Zawya's channels for booking details and last-minute changes.<br>
-  Badges: <b>AR</b> Arabic subtitles · <b>EN</b> English subtitles · <b>12+ / 16+ / 18+</b> age rating. Long-press (or right-click) “+ Add” to add a film you haven't booked yet. “Hide ended” and “Hide chosen” tidy up the Schedule and My list (never Films); long-press “Hide” to hide every screening of a film. Tickets for Zawya and Nile Cinema are sold on elCinema; Cimatheque screenings are free and booked through a Google Form. Your list is saved in this browser. To move it to another phone or browser, use “Copy list + backup” in My list, then Restore on the other device.
+  Badges: <b>AR</b> Arabic subtitles · <b>EN</b> English subtitles · <b>12+ / 16+ / 18+</b> age rating. Long-press (or right-click) “+ Add” to add a film you haven't booked yet. “Hide ended” and “Hide chosen” tidy up the Schedule (My list has “Hide ended” only; Films never hides); long-press “Hide” to hide every screening of a film. Tickets for Zawya and Nile Cinema are sold on elCinema; Cimatheque screenings are free and booked through a Google Form. Your list is saved in this browser. To move it to another phone or browser, use “Copy list + backup” in My list, then Restore on the other device.
 </div></footer>
 
 <div class="scrim" id="scrim"><div class="sheet" id="sheet"></div></div>
@@ -470,7 +470,8 @@ function editHide(fn){
   try{localStorage.setItem(HKEY,JSON.stringify(cur))}catch(e){}
 }
 function isMarked(s){return !!(hide.s[s.id]||hide.f[s.f])}
-function isHidden(s){return (hide.ended&&s.end<new Date())||(hide.chosen&&isMarked(s))}
+// "Hide chosen" only applies to the Schedule; My list only hides ended screenings.
+function isHidden(s,inMine){return (hide.ended&&s.end<new Date())||(!inMine&&hide.chosen&&isMarked(s))}
 
 const today=cairoDate(new Date());
 if(!state.day||!allDays.includes(state.day)) state.day=allDays.includes(today)?today:allDays[0];
@@ -541,7 +542,7 @@ function hideBtn(s){
 function row(s,opts={}){
   const f=s.film, v=VENUES[s.v], on=picks.has(s.id), gone=s.end<new Date();
   const cl=on?[]:clashesWith(s);
-  const marked=isMarked(s); // only seen while "Hide chosen" is off; otherwise the row is filtered out
+  const marked=!opts.mine&&isMarked(s); // only seen while "Hide chosen" is off; otherwise the row is filtered out
   return `<div class="row${on?' picked':''}${picks.get(s.id)==="u"?' unb':''}${gone?' gone':''}${marked?' marked':''}" style="--vc:${v.c};--vi:${v.i}">
     <div class="time">${fmtTime(s.start)}<small>until ${fmtTime(s.end)}</small></div>
     <div>
@@ -556,7 +557,7 @@ function row(s,opts={}){
       ${cl.length?`<div class="clash">Clashes with ${cl.map(c=>esc(c.film.en)+" ("+fmtTime(c.start)+")").join(", ")}</div>`:""}
       ${opts.mine?`<div style="margin-top:8px"><a class="gcal" href="${gcal(s)}" target="_blank" rel="noopener">Add to Google Calendar</a></div>`:""}
     </div>
-    <!--act--><div class="acol">${addBtn(s.id)}${hideBtn(s)}</div>
+    <!--act--><div class="acol">${addBtn(s.id)}${opts.mine?"":hideBtn(s)}</div>
   </div>`;
 }
 function matches(s){
@@ -573,13 +574,15 @@ function filtersHTML(withHide){
     <select class="chip" id="venue"><option value="">All venues</option>${Object.entries(VENUES).map(([k,v])=>`<option value="${k}"${state.venue===k?" selected":""}>${v.en}</option>`).join("")}</select>
     <button class="chip${state.arsubs?' on':''}" data-toggle="arsubs">Arabic subs</button>
     <button class="chip${state.classics?' on':''}" data-toggle="classics">Classics</button>
-    ${withHide?hideChips():""}
+    ${withHide?hideChips(true):""}
   </div>`;
 }
 // Only used in Schedule and My list. Films never hides anything.
-function hideChips(){
+function hideChips(withChosen){
+  const ended=`<button class="chip${hide.ended?' on':''}" data-htoggle="ended" title="Hide screenings that have already finished">Hide ended</button>`;
+  if(!withChosen) return ended;
   const n=Object.keys(hide.s).filter(id=>BYID[id]).length+Object.keys(hide.f).filter(id=>F[id]).length;
-  return `<button class="chip${hide.ended?' on':''}" data-htoggle="ended" title="Hide screenings that have already finished">Hide ended</button><button class="chip${hide.chosen?' on':''}" data-htoggle="chosen" title="Hide the screenings and films you chose to hide">Hide chosen${n?` <span style="opacity:.7">${n}</span>`:""}</button>`;
+  return ended+`<button class="chip${hide.chosen?' on':''}" data-htoggle="chosen" title="Hide the screenings and films you chose to hide">Hide chosen${n?` <span style="opacity:.7">${n}</span>`:""}</button>`;
 }
 
 // ---- views ----
@@ -636,20 +639,20 @@ function vFilms(){
 }
 function vMine(){
   const all=[...picks.keys()].map(id=>BYID[id]).filter(Boolean).sort((a,b)=>a.start-b.start);
-  const vis=all.filter(s=>!isHidden(s)), nH=all.length-vis.length;
+  const vis=all.filter(s=>!isHidden(s,true)), nH=all.length-vis.length;
   const nB=vis.filter(s=>picks.get(s.id)==="b").length, nU=vis.length-nB;
   if(state.mf&&!(state.mf==="b"?nB:nU)) state.mf="";
   const list=state.mf?vis.filter(s=>picks.get(s.id)===state.mf):vis;
   const mins=list.reduce((a,s)=>a+s.film.min,0);
   const clashN=list.filter(s=>all.some(o=>conflicts(s,o))).length;
-  let html=all.length?`<div class="filters" style="padding-top:16px">${[["","All",vis.length],["b","Booked",nB],["u","Not booked",nU]].map(([k,l,n])=>`<button class="chip${state.mf===k?" on":""}" data-mf="${k}"${n||!k?"":" disabled"}>${l} <span style="opacity:.7">${n}</span></button>`).join("")}${hideChips()}</div>`:"";
+  let html=all.length?`<div class="filters" style="padding-top:16px">${[["","All",vis.length],["b","Booked",nB],["u","Not booked",nU]].map(([k,l,n])=>`<button class="chip${state.mf===k?" on":""}" data-mf="${k}"${n||!k?"":" disabled"}>${l} <span style="opacity:.7">${n}</span></button>`).join("")}${hideChips(false)}</div>`:"";
   html+=`<div class="mine-bar"><div class="stat"><b>${list.length}</b> screening${list.length===1?"":"s"} · <b>${Math.floor(mins/60)}h ${mins%60}m</b> of cinema${clashN?` · <b style="color:var(--red-d)">${clashN} clashing</b>`:""}${nH?` · ${nH} hidden`:""}</div>
     <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="chip${state.travel?' on':''}" data-toggle="travel" title="Count it as a clash if there's less than 20 minutes between films at different venues">${state.travel?'✓ ':''}20 min between venues</button>${all.length?`<button class="btn" id="copy">Copy list + backup</button>`:""}<button class="btn ghost" id="restore">Restore</button>${all.length?`<button class="btn ghost" id="clear">Clear</button>`:""}</div></div>
   <div class="bk" id="bk" hidden></div>
   ${all.length?`<p class="bknote">Your list is saved in this browser. To move it to another device, use “Copy list + backup”, then Restore there.</p>`:""}`;
   if(!canStore) html=`<div class="clash" style="display:block;margin-top:14px">This browser isn't saving your list, so it will be gone when you close the page. Use “Copy my list” to keep a copy.</div>`+html;
   if(!all.length) html+=`<p class="bknote">Lost your list? If you copied it with a backup code before, tap <b>Restore</b> and paste it.</p>`;
-  if(!list.length&&nH&&!vis.length) return html+`<div class="empty">All ${nH} screening${nH===1?"":"s"} in your list are hidden.<br><small>Turn off “Hide ended” or “Hide chosen” to see them.</small></div>`;
+  if(!list.length&&nH&&!vis.length) return html+`<div class="empty">All ${nH} screening${nH===1?"":"s"} in your list are hidden.<br><small>Turn off “Hide ended” to see them.</small></div>`;
   if(!list.length) return html+`<div class="empty">Your list is empty.<br>Go to the <a href="#schedule">Schedule</a> or browse <a href="#films">Films</a> and tap “+ Add”.<br><small>Long-press “+ Add” to add a film you haven't booked yet.</small></div>`;
   let last="",prev=null;html+=`<div class="list">`;
   list.forEach(s=>{
