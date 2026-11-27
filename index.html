@@ -102,6 +102,8 @@ h2.dayhead b{color:var(--ink);font-size:18px}
 .hidebtn.un{border:1px solid var(--line);color:var(--ink);background:#fff}
 .row.marked{opacity:.55;border-style:dotted}
 .tag.hid{background:#e9e2e2;color:var(--muted)}
+.tag.dup{background:#fdecec;color:var(--red-d);border:1px solid var(--red);padding:2px 6px}
+.tag.dup.unb{background:#fff;border-style:dashed}
 .chip:disabled{opacity:.45;cursor:default}
 .book{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;text-decoration:none;padding:3px 8px;border-radius:6px;background:var(--ink);color:#fff;white-space:nowrap}
 .book small{font-weight:500;opacity:.75;font-size:11px}
@@ -517,6 +519,21 @@ function addBtn(id){
   if(st==="u") return `<div class="addgrp"><button class="add mark" data-mark="${id}">✓ Mark as booked</button><button class="add rm" data-rm="${id}">Remove</button></div>`;
   return `<button class="add${st==="b"?" on":st==="u"?" unb":""}" data-pick="${id}" title="${st==="b"?"Tap to remove · long-press to mark as unbooked":"Tap to add · long-press for more"}">${st==="b"?"✓ Booked":st==="u"?"◌ Not booked":"+ Add"}</button>`;
 }
+// Other picked screenings showing any of the same films (double bills count by member film).
+function filmIds(s){return s.film.members||[s.f]}
+function samePicks(s){
+  const ids=filmIds(s);
+  return [...picks].filter(([id])=>id!==s.id&&BYID[id]&&filmIds(BYID[id]).some(f=>ids.includes(f)))
+    .map(([id,st])=>({o:BYID[id],st}))
+    .sort((a,b)=>(a.st==="b"?0:1)-(b.st==="b"?0:1)||a.o.start-b.o.start);
+}
+function dupTag(s){
+  const d=samePicks(s); if(!d.length) return "";
+  const {o,st}=d[0], booked=st==="b";
+  const when=dayLabel(o.d,{weekday:"short",day:"numeric"})+" · "+fmtTime(o.start);
+  const tip=`${booked?"Booked":"On your list, not booked"}: ${o.film.en}, ${when}, ${VENUES[o.v].en}`;
+  return `<span class="tag dup${booked?"":" unb"}" title="${esc(tip)}">${booked?"✓ Booked":"◌ Unbooked"} ${when}${d.length>1?` +${d.length-1}`:""}</span>`;
+}
 function hideBtn(s){
   if(isMarked(s)) return `<button class="hidebtn un" data-unhide="${s.id}">Unhide</button>`;
   return `<button class="hidebtn" data-hide="${s.id}" title="Tap to hide this screening · long-press for all screenings">Hide</button>`;
@@ -533,7 +550,7 @@ function row(s,opts={}){
       <div class="sub">${filmLine(f)}</div>
       ${f.program?`<div class="prog">${f.members.map(m=>`<button data-film="${m}">${esc(F[m].en)}</button> (${F[m].min}′)`).join(" + ")}</div>`:""}
       <div class="tags">
-        <span class="tag venue">${v.en}</span><span class="tag">${f.min}′</span>${subsTags(s)}${s.age?`<span class="tag age">${s.age}</span>`:""}${f.classic?'<span class="tag classic">CLASSIC</span>':""}${s.note?`<span class="tag qa">${esc(s.note)}</span>`:""}${marked?'<span class="tag hid">HIDDEN</span>':""}
+        <span class="tag venue">${v.en}</span><span class="tag">${f.min}′</span>${subsTags(s)}${s.age?`<span class="tag age">${s.age}</span>`:""}${f.classic?'<span class="tag classic">CLASSIC</span>':""}${s.note?`<span class="tag qa">${esc(s.note)}</span>`:""}${marked?'<span class="tag hid">HIDDEN</span>':""}${dupTag(s)}
         ${lbLink(f)}${imLink(f)}${bookLink(s)}
       </div>
       ${cl.length?`<div class="clash">Clashes with ${cl.map(c=>esc(c.film.en)+" ("+fmtTime(c.start)+")").join(", ")}</div>`:""}
